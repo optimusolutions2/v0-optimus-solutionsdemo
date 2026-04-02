@@ -86,17 +86,18 @@ export function Footer() {
             <h3 className="mt-6 text-sm font-semibold uppercase tracking-wider">
               Contact
             </h3>
-            <p className="mt-2 text-sm text-white/70">
-              Email: info@optimussolutions.co.za
-            </p>
-            <p className="text-sm text-white/70">Phone: +27 12 345 6789</p>
+            <div className="mt-2 space-y-1 text-sm text-white/70">
+              <p>Email: optimusolutions2@gmail.com</p>
+              <p>Phone: +27 (61) 784-7303</p>
+              <p>Umfolozi Street, Ulundi, 3838</p>
+            </div>
           </div>
         </div>
 
         <div className="mt-12 border-t border-white/10 pt-8 text-center">
           <p className="text-sm text-white/60">
             &copy; {new Date().getFullYear()} Optimus Solutions. All rights
-            reserved.
+            reserved. | Trade No: 2025/17469107
           </p>
         </div>
       </div>

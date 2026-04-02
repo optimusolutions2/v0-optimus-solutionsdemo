@@ -90,7 +90,7 @@ Please follow up with the applicant within 24-48 hours.
           Authorization: `Bearer ${resendApiKey}`,
         },
         body: JSON.stringify({
-          from: "Optimus Solutions <noreply@optimussolutions.co.za>",
+          from: "Optimus Solutions <noreply@resend.dev>",
           to: receivingEmail,
           subject: emailSubject,
           text: emailBody,

@@ -1,4 +1,4 @@
-import { Metadata } from "next"
+import type { Metadata } from "next"
 import Link from "next/link"
 import Image from "next/image"
 import { ChevronRight, Shield } from "lucide-react"
@@ -108,10 +108,10 @@ export default function ApplyPage() {
                   <div className="space-y-2 text-sm">
                     <p>
                       <span className="text-white/60">Email:</span>{" "}
-                      info@optimussolutions.co.za
+                      optimusolutions2@gmail.com
                     </p>
                     <p>
-                      <span className="text-white/60">Phone:</span> 012 345 6789
+                      <span className="text-white/60">Phone:</span> +27 (61) 784-7303
                     </p>
                   </div>
                 </div>
