@@ -4,7 +4,7 @@ import Image from "next/image"
 import { ChevronRight, Shield } from "lucide-react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { ApplicationFormWrapper } from "@/components/application-form-wrapper"
+import { ApplicationForm } from "@/components/application-form"
 
 export const metadata: Metadata = {
   title: "Apply for a Loan - Optimus Solutions",
@@ -45,7 +45,7 @@ export default function ApplyPage() {
             <div className="grid gap-12 lg:grid-cols-3">
               {/* Form */}
               <div className="lg:col-span-2">
-                <ApplicationFormWrapper />
+                <ApplicationForm />
 
               {/* Additional Info */}
               <div className="mt-8 rounded-lg bg-muted/50 p-6">
