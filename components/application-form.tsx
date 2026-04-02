@@ -4,7 +4,8 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle, Loader2 } from "lucide-react"
+import { CheckCircle, Loader2, AlertCircle } from "lucide-react"
+import { submitApplication } from "@/app/actions/submit-application"
 
 // Types for form data - structured for future integrations
 export interface LoanApplicationData {
@@ -31,15 +32,13 @@ const initialFormData: LoanApplicationData = {
   confirmAccurate: false,
 }
 
-interface ApplicationFormProps {
-  onSubmit?: (data: LoanApplicationData) => Promise<void>
-}
-
-export function ApplicationForm({ onSubmit }: ApplicationFormProps) {
+export function ApplicationForm() {
   const [formData, setFormData] = useState<LoanApplicationData>(initialFormData)
   const [errors, setErrors] = useState<Partial<Record<keyof LoanApplicationData, string>>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [applicationId, setApplicationId] = useState<string | null>(null)
 
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof LoanApplicationData, string>> = {}
@@ -88,6 +87,7 @@ export function ApplicationForm({ onSubmit }: ApplicationFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setSubmitError(null)
 
     if (!validateForm()) {
       return
@@ -96,15 +96,17 @@ export function ApplicationForm({ onSubmit }: ApplicationFormProps) {
     setIsSubmitting(true)
 
     try {
-      if (onSubmit) {
-        await onSubmit(formData)
+      const result = await submitApplication(formData)
+
+      if (result.success) {
+        setApplicationId(result.applicationId || null)
+        setIsSubmitted(true)
       } else {
-        // Default handler - simulates API call
-        await new Promise((resolve) => setTimeout(resolve, 1500))
+        setSubmitError(result.message)
       }
-      setIsSubmitted(true)
     } catch (error) {
       console.error("Form submission error:", error)
+      setSubmitError("An unexpected error occurred. Please try again.")
     } finally {
       setIsSubmitting(false)
     }
@@ -140,6 +142,11 @@ export function ApplicationForm({ onSubmit }: ApplicationFormProps) {
           <h3 className="mb-2 text-xl font-semibold text-foreground">
             Application Submitted Successfully
           </h3>
+          {applicationId && (
+            <p className="mb-2 text-sm font-medium text-muted-foreground">
+              Reference: <span className="font-mono text-foreground">{applicationId}</span>
+            </p>
+          )}
           <p className="text-muted-foreground">
             Thank you for your application. Our team will review your
             information and contact you within 24-48 hours.
@@ -158,6 +165,17 @@ export function ApplicationForm({ onSubmit }: ApplicationFormProps) {
       </CardHeader>
       <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Error Alert */}
+          {submitError && (
+            <div className="flex items-start gap-3 rounded-lg border border-destructive/50 bg-destructive/10 p-4">
+              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
+              <div>
+                <p className="font-medium text-destructive">Submission Failed</p>
+                <p className="text-sm text-destructive/80">{submitError}</p>
+              </div>
+            </div>
+          )}
+
           {/* Personal Information */}
           <div className="space-y-4">
             <h4 className="text-sm font-medium text-muted-foreground">
