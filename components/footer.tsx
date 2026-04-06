@@ -43,7 +43,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="#why-us"
+                  href="/why-us"
                   className="text-sm text-white/70 transition-colors hover:text-white"
                 >
                   Why Us
@@ -51,10 +51,18 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="#about"
+                  href="/about"
                   className="text-sm text-white/70 transition-colors hover:text-white"
                 >
                   About Us
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/contact"
+                  className="text-sm text-white/70 transition-colors hover:text-white"
+                >
+                  Contact
                 </Link>
               </li>
             </ul>
