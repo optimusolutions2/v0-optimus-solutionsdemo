@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle, Loader2, AlertCircle } from "lucide-react"
+import { CheckCircle, Loader2, AlertCircle, X } from "lucide-react"
 import { submitApplication } from "@/app/actions/submit-application"
 
 // Types for form data - structured for future integrations
@@ -18,6 +19,7 @@ export interface LoanApplicationData {
   monthlyIncome: string
   notes: string
   confirmAccurate: boolean
+  consentToProcess: boolean
 }
 
 const initialFormData: LoanApplicationData = {
@@ -30,6 +32,7 @@ const initialFormData: LoanApplicationData = {
   monthlyIncome: "",
   notes: "",
   confirmAccurate: false,
+  consentToProcess: false,
 }
 
 export function ApplicationForm() {
@@ -79,6 +82,10 @@ export function ApplicationForm() {
 
     if (!formData.confirmAccurate) {
       newErrors.confirmAccurate = "You must confirm the information is accurate"
+    }
+
+    if (!formData.consentToProcess) {
+      newErrors.consentToProcess = "You must agree to the data processing terms"
     }
 
     setErrors(newErrors)
@@ -132,27 +139,116 @@ export function ApplicationForm() {
     }
   }
 
+  // Success Modal Component
+  const SuccessModal = () => {
+    const [isVisible, setIsVisible] = useState(false)
+
+    useEffect(() => {
+      // Trigger animation after mount
+      const timer = setTimeout(() => setIsVisible(true), 10)
+      return () => clearTimeout(timer)
+    }, [])
+
+    const handleClose = () => {
+      setIsVisible(false)
+      setTimeout(() => setIsSubmitted(false), 300)
+    }
+
+    return (
+      <div
+        className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-opacity duration-300 ${
+          isVisible ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        {/* Dark overlay */}
+        <div
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          onClick={handleClose}
+        />
+
+        {/* Modal card */}
+        <div
+          className={`relative w-full max-w-md transform rounded-2xl bg-white p-8 shadow-2xl transition-all duration-300 ${
+            isVisible ? "scale-100 opacity-100" : "scale-95 opacity-0"
+          }`}
+        >
+          {/* Close button */}
+          <button
+            onClick={handleClose}
+            className="absolute right-4 top-4 rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <X className="h-5 w-5" />
+          </button>
+
+          {/* Success icon */}
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
+            <CheckCircle className="h-10 w-10 text-green-600" />
+          </div>
+
+          {/* Content */}
+          <div className="text-center">
+            <h3 className="mb-3 text-2xl font-semibold text-foreground">
+              Application Received
+            </h3>
+
+            {applicationId && (
+              <p className="mb-4 text-sm text-muted-foreground">
+                Reference:{" "}
+                <span className="font-mono font-medium text-foreground">
+                  {applicationId}
+                </span>
+              </p>
+            )}
+
+            <p className="mb-3 leading-relaxed text-muted-foreground">
+              Thank you. Your application has been received and is currently
+              under review. You can expect a response within 24–48 hours.
+            </p>
+
+            <p className="mb-8 text-sm text-muted-foreground/80">
+              A consultant may contact you to complete the next steps.
+            </p>
+
+            {/* Buttons */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <Button
+                variant="outline"
+                onClick={handleClose}
+                className="order-2 sm:order-1"
+              >
+                Close
+              </Button>
+              <Button
+                asChild
+                className="order-1 bg-[#012a4a] text-white hover:bg-[#013a63] sm:order-2"
+              >
+                <Link href="/">Return Home</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Show modal when submitted
   if (isSubmitted) {
     return (
-      <Card className="border-0 bg-card shadow-lg">
-        <CardContent className="flex flex-col items-center justify-center p-12 text-center">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
-            <CheckCircle className="h-8 w-8 text-green-600" />
-          </div>
-          <h3 className="mb-2 text-xl font-semibold text-foreground">
-            Application Submitted Successfully
-          </h3>
-          {applicationId && (
-            <p className="mb-2 text-sm font-medium text-muted-foreground">
-              Reference: <span className="font-mono text-foreground">{applicationId}</span>
-            </p>
-          )}
-          <p className="text-muted-foreground">
-            Thank you for your application. Our team will review your
-            information and contact you within 24-48 hours.
-          </p>
-        </CardContent>
-      </Card>
+      <>
+        <Card className="border-0 bg-card shadow-lg opacity-50">
+          <CardHeader className="border-b bg-muted/30 px-6 py-4">
+            <CardTitle className="text-lg font-semibold">
+              Application Details
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-center py-12">
+              <p className="text-muted-foreground">Application submitted</p>
+            </div>
+          </CardContent>
+        </Card>
+        <SuccessModal />
+      </>
     )
   }
 
@@ -412,6 +508,40 @@ export function ApplicationForm() {
               {errors.confirmAccurate}
             </p>
           )}
+
+          {/* Data Processing Consent */}
+          <div className="rounded-lg border border-border bg-muted/30 p-4">
+            <div className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                id="consentToProcess"
+                name="consentToProcess"
+                checked={formData.consentToProcess}
+                onChange={handleChange}
+                className="mt-1 h-4 w-4 rounded border-input text-primary focus:ring-ring"
+              />
+              <div>
+                <label
+                  htmlFor="consentToProcess"
+                  className="text-sm leading-relaxed text-foreground"
+                >
+                  I understand and agree that the information I provide may be
+                  used for application assessment, verification, and, if
+                  approved, for debit order processing and related payment
+                  administration.
+                </label>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  This acknowledgement does not replace any formal debit order or
+                  bank mandate that may be required after approval.
+                </p>
+              </div>
+            </div>
+            {errors.consentToProcess && (
+              <p className="mt-2 text-sm text-destructive">
+                {errors.consentToProcess}
+              </p>
+            )}
+          </div>
 
           {/* Submit Button */}
           <Button
