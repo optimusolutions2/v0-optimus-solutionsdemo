@@ -95,9 +95,9 @@ export function Footer() {
               Contact
             </h3>
             <div className="mt-2 space-y-1 text-sm text-white/70">
-              <p>Email: optimusolutions2@gmail.com</p>
-              <p>Phone: +27 (61) 784-7303</p>
-              <p>Umfolozi Street, Ulundi, 3838</p>
+              <p>Email: optimussolutions2@gmail.com</p>
+              <p>Phone: +27 (76) 851-3565</p>
+              
             </div>
           </div>
         </div>
