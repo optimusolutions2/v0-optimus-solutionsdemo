@@ -108,10 +108,10 @@ export default function ApplyPage() {
                   <div className="space-y-2 text-sm">
                     <p>
                       <span className="text-white/60">Email:</span>{" "}
-                      optimusolutions2@gmail.com
+                      optimussolutions2@gmail.com
                     </p>
                     <p>
-                      <span className="text-white/60">Phone:</span> +27 (61) 784-7303
+                      <span className="text-white/60">Phone:</span> +27 (76) 851-3565
                     </p>
                   </div>
                 </div>
