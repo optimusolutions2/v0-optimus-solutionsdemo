@@ -131,7 +131,7 @@ export default function ContactPage() {
                     <h3 className="mb-4 text-lg font-semibold">Get in Touch</h3>
                     <div className="space-y-4">
                       <div className="flex items-start gap-3">
-                        <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-white/70" />
+                      
                        
                       </div>
                       <div className="flex items-start gap-3">
