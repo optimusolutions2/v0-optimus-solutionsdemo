@@ -107,12 +107,24 @@ export default function ApplyPage() {
                   </p>
                   <div className="space-y-2 text-sm">
                     <p>
-                      <span className="text-white/60">Email:</span>{" "}
-                      optimusolutions2@gmail.com
-                    </p>
-                    <p>
-                      <span className="text-white/60">Phone:</span> +27 (76) 851-3565
-                    </p>
+  <span className="text-white/60">Email:</span>{" "}
+  <a
+    href="mailto:optimusolutions2@gmail.com"
+    className="hover:underline text-white"
+  >
+    optimusolutions2@gmail.com
+  </a>
+</p>
+
+<p>
+  <span className="text-white/60">Phone:</span>{" "}
+  <a
+    href="tel:+27768513565"
+    className="hover:underline text-white"
+  >
+    +27 (76) 851-3565
+  </a>
+</p>
                   </div>
                 </div>
               </div>
