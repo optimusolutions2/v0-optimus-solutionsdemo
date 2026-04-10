@@ -34,8 +34,8 @@ const contactInfo = [
   {
     icon: Mail,
     title: "Email",
-    content: "optimussolutions2@gmail.com",
-    href: "mailto:optimussolutions2@gmail.com",
+    content: "optimusolutions2@gmail.com",
+    href: "mailto:optimusolutions2@gmail.com",
   },
   {
     icon: Phone,
@@ -137,10 +137,10 @@ export default function ContactPage() {
                       <div className="flex items-start gap-3">
                         <Mail className="mt-0.5 h-5 w-5 shrink-0 text-white/70" />
                         <a
-                          href="mailto:optimussolutions2@gmail.com"
+                          href="mailto:optimusolutions2@gmail.com"
                           className="text-sm text-white/90 transition-colors hover:text-white"
                         >
-                          optimussolutions2@gmail.com
+                          optimusolutions2@gmail.com
                         </a>
                       </div>
                       <div className="flex items-start gap-3">
