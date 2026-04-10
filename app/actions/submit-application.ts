@@ -225,8 +225,7 @@ Trade Number: 2025/17469107
     <!-- Footer -->
     <div style="background-color: #f8fafc; padding: 20px 30px; border-top: 1px solid #e5e7eb; text-align: center;">
       <p style="margin: 0 0 5px; color: #374151; font-weight: 500;">Optimus Solutions</p>
-      <p style="margin: 0; color: #6b7280; font-size: 13px;">Umfolozi Street, Ulundi, 3838</p>
-      <p style="margin: 5px 0 0; color: #6b7280; font-size: 13px;">+27 (61) 784-7303 | optimusolutions2@gmail.com</p>
+      <p style="margin: 5px 0 0; color: #6b7280; font-size: 13px;"+27 (76) 851-3565| optimussolutions2@gmail.com</p>
       <p style="margin: 10px 0 0; color: #9ca3af; font-size: 11px;">Trade Number: 2025/17469107</p>
     </div>
   </div>
