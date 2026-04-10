@@ -115,7 +115,7 @@ Reply directly to this email to contact the applicant at: ${data.email}
 
 ────────────────────────────────────────────────────────────────
 Optimus Solutions | 
-Phone: +27 (76) 851-3565 | Email: optimussolutions2@gmail.com
+Phone: +27 (76) 851-3565 | Email: optimusolutions2@gmail.com
 Trade Number: 2025/17469107
 ────────────────────────────────────────────────────────────────
     `.trim()
