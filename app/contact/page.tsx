@@ -30,23 +30,18 @@ function FadeInSection({
 }
 
 const contactInfo = [
-  {
-    icon: MapPin,
-    title: "Address",
-    content: "Umfolozi Street, Ulundi, 3838",
-    href: null,
-  },
+
   {
     icon: Mail,
     title: "Email",
-    content: "optimusolutions2@gmail.com",
-    href: "mailto:optimusolutions2@gmail.com",
+    content: "optimussolutions2@gmail.com",
+    href: "mailto:optimussolutions2@gmail.com",
   },
   {
     icon: Phone,
     title: "Phone",
-    content: "+27 (61) 784-7303",
-    href: "tel:+27617847303",
+    content: "+27 (76) 851-3565",
+    href: "tel:+27768513565",
   },
 ]
 
@@ -137,26 +132,24 @@ export default function ContactPage() {
                     <div className="space-y-4">
                       <div className="flex items-start gap-3">
                         <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-white/70" />
-                        <p className="text-sm text-white/90">
-                          Umfolozi Street, Ulundi, 3838
-                        </p>
+                       
                       </div>
                       <div className="flex items-start gap-3">
                         <Mail className="mt-0.5 h-5 w-5 shrink-0 text-white/70" />
                         <a
-                          href="mailto:optimusolutions2@gmail.com"
+                          href="mailto:optimussolutions2@gmail.com"
                           className="text-sm text-white/90 transition-colors hover:text-white"
                         >
-                          optimusolutions2@gmail.com
+                          optimussolutions2@gmail.com
                         </a>
                       </div>
                       <div className="flex items-start gap-3">
                         <Phone className="mt-0.5 h-5 w-5 shrink-0 text-white/70" />
                         <a
-                          href="tel:+27617847303"
+                          href="tel:+27768513565"
                           className="text-sm text-white/90 transition-colors hover:text-white"
                         >
-                          +27 (61) 784-7303
+                          +27 (76) 851-3565
                         </a>
                       </div>
                     </div>
