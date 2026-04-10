@@ -114,8 +114,8 @@ Please follow up with the applicant within 24-48 hours.
 Reply directly to this email to contact the applicant at: ${data.email}
 
 ────────────────────────────────────────────────────────────────
-Optimus Solutions | Umfolozi Street, Ulundi, 3838
-Phone: +27 (61) 784-7303 | Email: optimusolutions2@gmail.com
+Optimus Solutions | 
+Phone: +27 (76) 851-3565 | Email: optimussolutions2@gmail.com
 Trade Number: 2025/17469107
 ────────────────────────────────────────────────────────────────
     `.trim()
