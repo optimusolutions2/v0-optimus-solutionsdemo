@@ -146,10 +146,10 @@ export default function ContactPage() {
                       <div className="flex items-start gap-3">
                         <Phone className="mt-0.5 h-5 w-5 shrink-0 text-white/70" />
                         <a
-                          href="tel:+27768513565"
+                          href="tel:+27729603512"
                           className="text-sm text-white/90 transition-colors hover:text-white"
                         >
-                          +27 (76) 851-3565
+                          +27 (72) 960-3512
                         </a>
                       </div>
                     </div>
