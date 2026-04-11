@@ -119,10 +119,10 @@ export default function ApplyPage() {
 <p>
   <span className="text-white/60">Phone:</span>{" "}
   <a
-    href="tel:+27768513565"
+    href="tel:+27729603512"
     className="hover:underline text-white"
   >
-    +27 (76) 851-3565
+    +27 (72) 960-3512
   </a>
 </p>
                   </div>
