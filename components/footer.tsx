@@ -96,7 +96,7 @@ export function Footer() {
             </h3>
             <div className="mt-2 space-y-1 text-sm text-white/70">
               <p>Email: optimussolutions2@gmail.com</p>
-              <p>Phone: +27 (76) 851-3565</p>
+              <p>Phone: +27 (72) 960-3512</p>
               
             </div>
           </div>
