@@ -40,8 +40,8 @@ const contactInfo = [
   {
     icon: Phone,
     title: "Phone",
-    content: "+27 (76) 851-3565",
-    href: "tel:+27768513565",
+    content: "+27 (72) 960-3512",
+    href: "tel:+27729603512",
   },
 ]
 
