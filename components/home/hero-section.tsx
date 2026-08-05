@@ -16,13 +16,12 @@ export function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-[#005bbb] to-[#003366]">
       {/* Subtle pattern overlay */}
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.03%22%3E%3Cpath%20d%3D%22M36%2034v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6%2034v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6%204V0H4v4H0v2h4v4h2V6h4V4H6z%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E')] opacity-50" />
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.03%22%3E%3Cpath%20d%3D%22M36%2034v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6%2034v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6%204V0H4v4H0v2h4v4h2V6h4V4H6z%22%2F%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-50" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 py-16 sm:px-6 md:py-20 lg:px-8 lg:py-24">
         <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
-          {/* Left Side - Text Content */}
+          {/* Left Side */}
           <div className="text-center lg:text-left">
-            {/* Headline */}
             <h1
               className={`text-balance text-4xl font-bold tracking-tight text-white md:text-5xl lg:text-6xl transition-all duration-700 ease-out ${
                 isVisible
@@ -33,7 +32,6 @@ export function HeroSection() {
               Get Cash Fast — Up to R10,000 Today
             </h1>
 
-            {/* Subheadline */}
             <p
               className={`mt-6 text-pretty text-lg text-white/90 md:text-xl transition-all duration-700 ease-out delay-150 ${
                 isVisible
@@ -44,7 +42,36 @@ export function HeroSection() {
               Quick approval. No paperwork stress.
             </p>
 
-            {/* CTA Buttons */}
+            {/* NEW NCR ACCREDITATION */}
+            <div
+              className={`mt-6 inline-flex items-center gap-4 rounded-xl border border-white/20 bg-white/10 px-5 py-3 backdrop-blur-md transition-all duration-700 ease-out delay-200 ${
+                isVisible
+                  ? "translate-x-0 opacity-100"
+                  : "-translate-x-8 opacity-0"
+              }`}
+            >
+              <Image
+                src="/images/NCR LOGO.png"
+                alt="National Credit Regulator"
+                width={56}
+                height={56}
+                className="h-12 w-auto object-contain"
+              />
+
+              <div className="text-left">
+                <p className="text-sm font-semibold text-white">
+                  Registered Credit Provider
+                </p>
+                <p className="text-sm text-white/80">
+                  NCR Registration No.
+                  <span className="ml-1 font-bold text-white">
+                    NCRCP23929
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            {/* CTA */}
             <div
               className={`mt-10 flex flex-col items-center gap-4 sm:flex-row lg:justify-start transition-all duration-700 ease-out delay-300 ${
                 isVisible
@@ -59,6 +86,7 @@ export function HeroSection() {
               >
                 <Link href="/apply">Apply Now</Link>
               </Button>
+
               <Button
                 asChild
                 variant="outline"
@@ -78,57 +106,24 @@ export function HeroSection() {
               }`}
             >
               <div className="flex items-center gap-2">
-                <svg
-                  className="h-5 w-5 text-white/70"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                  />
-                </svg>
-                <span>Secure</span>
+                <span>🔒 Secure</span>
               </div>
+
               <div className="flex items-center gap-2">
-                <svg
-                  className="h-5 w-5 text-white/70"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
-                <span>Fast Approval</span>
+                <span>⚡ Fast Approval</span>
               </div>
+
               <div className="flex items-center gap-2">
-                <svg
-                  className="h-5 w-5 text-white/70"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <span>24-48 Hours</span>
+                <span>⏱ 24–48 Hours</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span>✔ NCR Registered</span>
               </div>
             </div>
           </div>
 
-          {/* Right Side - Image */}
+          {/* Right Side */}
           <div
             className={`relative transition-all duration-700 ease-out delay-200 ${
               isVisible
@@ -145,7 +140,7 @@ export function HeroSection() {
                 priority
               />
             </div>
-            {/* Decorative element behind image */}
+
             <div className="absolute -bottom-4 -right-4 -z-10 h-full w-full rounded-2xl bg-white/10" />
           </div>
         </div>
