@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import Image from "next/image"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
@@ -41,10 +42,12 @@ export default function AboutPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
+
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative overflow-hidden bg-gradient-to-br from-[#012a4a] via-[#013a63] to-[#01497c] py-20 md:py-28">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.03%22%3E%3Cpath%20d%3D%22M36%2034v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6%2034v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6%204V0H4v4H0v2h4v4h2V6h4V4H6z%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E')] opacity-50" />
+
           <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-3xl text-center">
               <FadeInSection>
@@ -52,6 +55,7 @@ export default function AboutPage() {
                   About Optimus Solutions
                 </h1>
               </FadeInSection>
+
               <FadeInSection delay={100}>
                 <p className="mt-6 text-pretty text-lg text-white/80 md:text-xl">
                   A forward-thinking financial services provider, offering fast,
@@ -80,6 +84,42 @@ export default function AboutPage() {
           </div>
         </section>
 
+        {/* NCR Accreditation */}
+        <section className="bg-background pb-16">
+          <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+            <FadeInSection delay={300}>
+              <div className="rounded-3xl border border-border bg-card p-8 shadow-sm">
+                <div className="flex flex-col items-center gap-6 md:flex-row">
+                  <Image
+                    src="/images/NCR LOGO.png"
+                    alt="National Credit Regulator"
+                    width={140}
+                    height={70}
+                    className="h-16 w-auto object-contain"
+                  />
+
+                  <div className="text-center md:text-left">
+                    <h2 className="text-2xl font-bold text-foreground">
+                      Registered Credit Provider
+                    </h2>
+
+                    <p className="mt-2 text-muted-foreground">
+                      Optimus Solutions is proudly registered with the National
+                      Credit Regulator (NCR) and operates in accordance with the
+                      National Credit Act, providing transparent and responsible
+                      financial services to South Africans.
+                    </p>
+
+                    <p className="mt-4 text-lg font-semibold text-[#012a4a]">
+                      NCR Registration No. NCRCP23929
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </FadeInSection>
+          </div>
+        </section>
+
         {/* Mission & Vision */}
         <section className="bg-muted/30 py-16 md:py-24">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -89,9 +129,11 @@ export default function AboutPage() {
                   <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-[#012a4a]/10 transition-transform duration-300 group-hover:scale-110">
                     <Target className="h-7 w-7 text-[#012a4a]" />
                   </div>
+
                   <h2 className="mb-4 text-2xl font-bold text-foreground">
                     Our Mission
                   </h2>
+
                   <p className="leading-relaxed text-muted-foreground">
                     To make financial access simple, efficient, and stress-free.
                     We are committed to providing fast approvals, transparent
@@ -101,13 +143,15 @@ export default function AboutPage() {
               </FadeInSection>
 
               <FadeInSection delay={200}>
-                <div className="group relative overflow-hidden rounded-2xl bg-card p-8 shadow-sm ring-1 ring-border/50 transition-all duration-300 hover:shadow-lg md:p-10">
+                                <div className="group relative overflow-hidden rounded-2xl bg-card p-8 shadow-sm ring-1 ring-border/50 transition-all duration-300 hover:shadow-lg md:p-10">
                   <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-[#012a4a]/10 transition-transform duration-300 group-hover:scale-110">
                     <Eye className="h-7 w-7 text-[#012a4a]" />
                   </div>
+
                   <h2 className="mb-4 text-2xl font-bold text-foreground">
                     Our Vision
                   </h2>
+
                   <p className="leading-relaxed text-muted-foreground">
                     Breaking down financial barriers and making opportunity more
                     accessible for all South Africans. We envision a future
@@ -127,6 +171,7 @@ export default function AboutPage() {
                 <h2 className="text-balance text-3xl font-bold text-foreground md:text-4xl">
                   Why We&apos;re Different
                 </h2>
+
                 <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
                   We&apos;ve built our service around what matters most to you.
                 </p>
@@ -139,12 +184,14 @@ export default function AboutPage() {
                   <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-[#012a4a] to-[#01497c] transition-transform duration-300 group-hover:scale-110">
                     <Zap className="h-7 w-7 text-white" />
                   </div>
+
                   <h3 className="mb-3 text-xl font-semibold text-foreground">
                     Speed &amp; Simplicity
                   </h3>
+
                   <p className="leading-relaxed text-muted-foreground">
                     Our streamlined online process means you can apply in
-                    minutes and receive a decision within 24-48 hours. No
+                    minutes and receive a decision within 24–48 hours. No
                     complicated paperwork, no unnecessary delays.
                   </p>
                 </div>
@@ -155,13 +202,15 @@ export default function AboutPage() {
                   <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-[#012a4a] to-[#01497c] transition-transform duration-300 group-hover:scale-110">
                     <Shield className="h-7 w-7 text-white" />
                   </div>
+
                   <h3 className="mb-3 text-xl font-semibold text-foreground">
                     Transparency
                   </h3>
+
                   <p className="leading-relaxed text-muted-foreground">
                     No hidden fees, no surprise charges. We believe in clear,
                     honest communication about all terms and conditions so you
-                    can make informed decisions.
+                    can make informed financial decisions with confidence.
                   </p>
                 </div>
               </FadeInSection>
@@ -171,9 +220,11 @@ export default function AboutPage() {
                   <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-[#012a4a] to-[#01497c] transition-transform duration-300 group-hover:scale-110">
                     <Users className="h-7 w-7 text-white" />
                   </div>
+
                   <h3 className="mb-3 text-xl font-semibold text-foreground">
                     Human Support
                   </h3>
+
                   <p className="leading-relaxed text-muted-foreground">
                     Behind our technology is a dedicated team ready to assist
                     you. We provide personalized support throughout your loan
@@ -193,10 +244,13 @@ export default function AboutPage() {
                 <h2 className="text-balance text-3xl font-bold text-white md:text-4xl">
                   Join the People Who Trust Us
                 </h2>
+
                 <p className="mt-4 text-lg text-white/80">
                   Thousands of South Africans have chosen Optimus Solutions for
-                  their financial needs. Experience the difference today.
+                  their financial needs. Experience the difference today with a
+                  registered and trusted credit provider.
                 </p>
+
                 <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
                   <Button
                     asChild
@@ -208,6 +262,7 @@ export default function AboutPage() {
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
+
                   <Button
                     asChild
                     variant="outline"
@@ -222,6 +277,7 @@ export default function AboutPage() {
           </div>
         </section>
       </main>
+
       <Footer />
     </div>
   )
