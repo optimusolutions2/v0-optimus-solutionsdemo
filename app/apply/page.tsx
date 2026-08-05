@@ -75,20 +75,47 @@ export default function ApplyPage() {
 
               {/* Sidebar */}
               <div className="space-y-6">
-                {/* Trust Badge */}
-                <div className="rounded-xl bg-card p-6 shadow-sm">
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#012a4a]/10">
-                    <Shield className="h-6 w-6 text-[#012a4a]" />
-                  </div>
-                  <h3 className="mb-2 font-semibold text-foreground">
-                    Your Information is Secure
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    Your data is protected with industry-grade encryption. We
-                    will only use your information for your loan application.
-                  </p>
-                </div>
+               {/* Trust & NCR Accreditation */}
+<div className="rounded-xl bg-card p-6 shadow-sm">
+  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#012a4a]/10">
+    <Shield className="h-6 w-6 text-[#012a4a]" />
+  </div>
 
+  <h3 className="mb-2 font-semibold text-foreground">
+    Your Information is Secure
+  </h3>
+
+  <p className="text-sm text-muted-foreground">
+    Your information is protected with industry-grade encryption and is only
+    used to process your loan application.
+  </p>
+
+  <div className="mt-6 rounded-lg border border-border bg-muted/30 p-4">
+    <div className="flex items-center gap-3">
+      <Image
+        src="/images/NCR LOGO.png"
+        alt="National Credit Regulator"
+        width={60}
+        height={60}
+        className="h-12 w-auto object-contain"
+      />
+
+      <div>
+        <p className="text-sm font-semibold text-foreground">
+          Registered Credit Provider
+        </p>
+
+        <p className="text-xs text-muted-foreground">
+          NCR Registration No.
+        </p>
+
+        <p className="text-sm font-bold text-[#012a4a]">
+          NCRCP23929
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
                 {/* Image */}
                 <div className="relative hidden aspect-[4/3] overflow-hidden rounded-xl lg:block">
                   <Image
