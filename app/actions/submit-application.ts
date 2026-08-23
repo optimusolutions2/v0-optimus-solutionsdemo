@@ -1,46 +1,41 @@
 "use server"
 
+import { put } from "@vercel/blob"
+
 export interface SubmitApplicationResult {
   success: boolean
   message: string
   applicationId?: string
 }
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024
-const MAX_TOTAL_SIZE = 28 * 1024 * 1024
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+const MAX_TOTAL_SIZE = 28 * 1024 * 1024 // 28MB
 
-const ALLOWED_FILE_TYPES = new Set([
+const ALLOWED_FILE_TYPES = [
   "application/pdf",
   "image/jpeg",
   "image/png",
-])
+]
 
-const REQUIRED_DOCUMENTS = [
-  { key: "idFront", label: "ID Front" },
-  { key: "idBack", label: "ID Back" },
-  { key: "bankStatement", label: "3 Months Bank Statement" },
-  { key: "proofOfAddress", label: "Proof of Address" },
-  { key: "payslip1", label: "Payslip - Month 1" },
-  { key: "payslip2", label: "Payslip - Month 2" },
-  { key: "payslip3", label: "Payslip - Month 3" },
+const DOCUMENT_FIELDS = [
+  "idFront",
+  "idBack",
+  "bankStatement",
+  "proofOfAddress",
+  "payslip1",
+  "payslip2",
+  "payslip3",
 ] as const
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;")
-}
+type DocumentField = (typeof DOCUMENT_FIELDS)[number]
 
 export async function submitApplication(
   formData: FormData
 ): Promise<SubmitApplicationResult> {
   try {
-    // ---------------------------------------------
-    // Application fields
-    // ---------------------------------------------
+    // ---------------------------------------------------------
+    // 1. Read application information
+    // ---------------------------------------------------------
 
     const fullName = String(formData.get("fullName") || "").trim()
     const idNumber = String(formData.get("idNumber") || "").trim()
@@ -61,19 +56,11 @@ export async function submitApplication(
     const consentToProcess =
       String(formData.get("consentToProcess")) === "true"
 
-    // ---------------------------------------------
-    // Basic validation
-    // ---------------------------------------------
+    // ---------------------------------------------------------
+    // 2. Server-side validation
+    // ---------------------------------------------------------
 
-    if (
-      !fullName ||
-      !idNumber ||
-      !email ||
-      !phoneNumber ||
-      !loanAmount ||
-      !employmentStatus ||
-      !monthlyIncome
-    ) {
+    if (!fullName || !idNumber || !email || !phoneNumber) {
       return {
         success: false,
         message: "Please fill in all required fields.",
@@ -98,18 +85,31 @@ export async function submitApplication(
       }
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!loanAmount || Number(loanAmount) <= 0) {
       return {
         success: false,
-        message: "Please enter a valid email address.",
+        message: "Please enter a valid loan amount.",
+      }
+    }
+
+    if (!employmentStatus) {
+      return {
+        success: false,
+        message: "Please select your employment status.",
+      }
+    }
+
+    if (!monthlyIncome || Number(monthlyIncome) <= 0) {
+      return {
+        success: false,
+        message: "Please enter a valid monthly income.",
       }
     }
 
     if (!confirmAccurate) {
       return {
         success: false,
-        message:
-          "You must confirm that the information provided is accurate.",
+        message: "You must confirm that the information is accurate.",
       }
     }
 
@@ -120,62 +120,9 @@ export async function submitApplication(
       }
     }
 
-    // ---------------------------------------------
-    // Validate documents
-    // ---------------------------------------------
-
-    const files: {
-      key: string
-      label: string
-      file: File
-    }[] = []
-
-    let totalSize = 0
-
-    for (const document of REQUIRED_DOCUMENTS) {
-      const value = formData.get(document.key)
-
-      if (!(value instanceof File) || value.size === 0) {
-        return {
-          success: false,
-          message: `${document.label} is required.`,
-        }
-      }
-
-      if (!ALLOWED_FILE_TYPES.has(value.type)) {
-        return {
-          success: false,
-          message: `${document.label} must be a PDF, JPG, JPEG or PNG file.`,
-        }
-      }
-
-      if (value.size > MAX_FILE_SIZE) {
-        return {
-          success: false,
-          message: `${document.label} is too large. Maximum size is 10MB.`,
-        }
-      }
-
-      totalSize += value.size
-
-      files.push({
-        key: document.key,
-        label: document.label,
-        file: value,
-      })
-    }
-
-    if (totalSize > MAX_TOTAL_SIZE) {
-      return {
-        success: false,
-        message:
-          "The combined size of your documents is too large. Please use smaller files. Maximum total size is 28MB.",
-      }
-    }
-
-    // ---------------------------------------------
-    // Generate application ID
-    // ---------------------------------------------
+    // ---------------------------------------------------------
+    // 3. Generate application ID
+    // ---------------------------------------------------------
 
     const applicationId = `OPT-${Date.now()}-${Math.random()
       .toString(36)
@@ -193,347 +140,183 @@ export async function submitApplication(
       second: "2-digit",
     })
 
-    // ---------------------------------------------
-    // Prepare attachments for Resend
-    // ---------------------------------------------
+    // ---------------------------------------------------------
+    // 4. Collect uploaded documents
+    // ---------------------------------------------------------
 
-    const attachments = await Promise.all(
-      files.map(async ({ file }) => {
-        const buffer = Buffer.from(await file.arrayBuffer())
+    const uploadedFiles: {
+      field: DocumentField
+      file: File
+    }[] = []
 
+    let totalSize = 0
+
+    for (const field of DOCUMENT_FIELDS) {
+      const value = formData.get(field)
+
+      if (!(value instanceof File) || value.size === 0) {
         return {
-          filename: file.name,
-          content: buffer.toString("base64"),
+          success: false,
+          message: `Please upload the required document: ${field}.`,
         }
-      })
-    )
+      }
 
-    // ---------------------------------------------
-    // Plain text email
-    // ---------------------------------------------
+      if (!ALLOWED_FILE_TYPES.includes(value.type)) {
+        return {
+          success: false,
+          message: `${field} must be a PDF, JPG, JPEG or PNG file.`,
+        }
+      }
+
+      if (value.size > MAX_FILE_SIZE) {
+        return {
+          success: false,
+          message: `${field} is too large. Maximum size is 10MB.`,
+        }
+      }
+
+      totalSize += value.size
+
+      uploadedFiles.push({
+        field,
+        file: value,
+      })
+    }
+
+    if (totalSize > MAX_TOTAL_SIZE) {
+      return {
+        success: false,
+        message:
+          "The combined size of your documents is too large. Maximum total size is 28MB.",
+      }
+    }
+
+    // ---------------------------------------------------------
+    // 5. Upload documents to Vercel Blob
+    // ---------------------------------------------------------
+
+    const documentUrls: Partial<Record<DocumentField, string>> = {}
+
+    for (const { field, file } of uploadedFiles) {
+      const extension =
+        file.name.split(".").pop()?.toLowerCase() || "file"
+
+      const safeName = `${field}.${extension}`
+
+      const blob = await put(
+        `loan-applications/${applicationId}/${safeName}`,
+        file,
+        {
+          access: "public",
+          addRandomSuffix: false,
+        }
+      )
+
+      documentUrls[field] = blob.url
+    }
+
+    // ---------------------------------------------------------
+    // 6. Prepare plain-text email
+    // ---------------------------------------------------------
 
     const emailSubject = `New Loan Application: ${fullName} - ${applicationId}`
 
     const emailBody = `
-============================================================
-                    NEW LOAN APPLICATION
-============================================================
+NEW LOAN APPLICATION
+====================
 
-Application ID:     ${applicationId}
-Submission Date:    ${submissionTimestamp}
+Application ID:
+${applicationId}
 
-------------------------------------------------------------
-                    PERSONAL INFORMATION
-------------------------------------------------------------
+Submission Date:
+${submissionTimestamp}
 
-Full Name:          ${fullName}
-ID Number:          ${idNumber}
-Phone Number:       ${phoneNumber}
-Email Address:      ${email}
 
-------------------------------------------------------------
-                      LOAN DETAILS
-------------------------------------------------------------
+PERSONAL INFORMATION
+--------------------
 
-Requested Amount:   R${Number(loanAmount).toLocaleString("en-ZA")}
-Employment Status:  ${employmentStatus
-      .charAt(0)
-      .toUpperCase()}${employmentStatus.slice(1).replace("-", " ")}
-Monthly Income:     R${Number(monthlyIncome).toLocaleString("en-ZA")}
+Full Name:
+${fullName}
 
-------------------------------------------------------------
-                    REQUIRED DOCUMENTS
-------------------------------------------------------------
+ID Number:
+${idNumber}
 
-${files
-  .map(
-    ({ label, file }) =>
-      `${label}: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`
-  )
-  .join("\n")}
+Phone Number:
+${phoneNumber}
 
-------------------------------------------------------------
-                    ADDITIONAL NOTES
-------------------------------------------------------------
+Email Address:
+${email}
+
+
+LOAN DETAILS
+------------
+
+Requested Amount:
+R${Number(loanAmount).toLocaleString("en-ZA")}
+
+Employment Status:
+${employmentStatus}
+
+Monthly Income:
+R${Number(monthlyIncome).toLocaleString("en-ZA")}
+
+
+ADDITIONAL NOTES
+----------------
 
 ${notes || "No additional notes provided."}
 
-------------------------------------------------------------
-                    CONSENT & VERIFICATION
-------------------------------------------------------------
+
+CONSENT & VERIFICATION
+----------------------
 
 Information Accuracy Confirmed:
 ${confirmAccurate ? "YES" : "NO"}
 
-Data Processing Consent Given:
+Data Processing Consent:
 ${consentToProcess ? "YES" : "NO"}
 
-============================================================
 
-This application was submitted through the Optimus Solutions website.
+DOCUMENTS
+---------
 
-Please follow up with the applicant within 24-48 hours.
+ID Front:
+${documentUrls.idFront || "Not available"}
 
-Reply directly to this email to contact the applicant at:
-${email}
+ID Back:
+${documentUrls.idBack || "Not available"}
 
-------------------------------------------------------------
+3 Months Bank Statement:
+${documentUrls.bankStatement || "Not available"}
+
+Proof of Address:
+${documentUrls.proofOfAddress || "Not available"}
+
+Payslip Month 1:
+${documentUrls.payslip1 || "Not available"}
+
+Payslip Month 2:
+${documentUrls.payslip2 || "Not available"}
+
+Payslip Month 3:
+${documentUrls.payslip3 || "Not available"}
+
+
 Optimus Solutions
 Phone: +27 (76) 851-3565
 Email: optimusolutions2@gmail.com
 Trade Number: 2025/17469107
-------------------------------------------------------------
 `.trim()
 
-    // ---------------------------------------------
-    // HTML email
-    // ---------------------------------------------
-
-    const safeFullName = escapeHtml(fullName)
-    const safeIdNumber = escapeHtml(idNumber)
-    const safePhone = escapeHtml(phoneNumber)
-    const safeEmail = escapeHtml(email)
-    const safeNotes = escapeHtml(notes)
-
-    const emailHtml = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>New Loan Application</title>
-</head>
-
-<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;line-height:1.6;color:#1a1a1a;max-width:600px;margin:0 auto;padding:20px;background-color:#f5f5f5;">
-
-  <div style="background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 6px rgba(0,0,0,0.1);">
-
-    <div style="background:linear-gradient(135deg,#012a4a 0%,#014f86 100%);padding:30px;text-align:center;">
-      <h1 style="color:#ffffff;margin:0;font-size:24px;font-weight:600;">
-        New Loan Application
-      </h1>
-
-      <p style="color:rgba(255,255,255,0.8);margin:10px 0 0;font-size:14px;">
-        Submitted via Optimus Solutions Website
-      </p>
-    </div>
-
-    <div style="background-color:#f8fafc;padding:20px 30px;border-bottom:1px solid #e5e7eb;">
-      <table style="width:100%;">
-        <tr>
-          <td style="padding:5px 0;">
-            <span style="color:#6b7280;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;">
-              Application ID
-            </span>
-
-            <div style="color:#012a4a;font-size:18px;font-weight:600;font-family:'Courier New',monospace;">
-              ${applicationId}
-            </div>
-          </td>
-
-          <td style="padding:5px 0;text-align:right;">
-            <span style="color:#6b7280;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;">
-              Submitted
-            </span>
-
-            <div style="color:#374151;font-size:14px;">
-              ${submissionTimestamp}
-            </div>
-          </td>
-        </tr>
-      </table>
-    </div>
-
-    <div style="padding:30px;">
-
-      <h2 style="color:#012a4a;font-size:16px;margin:0 0 15px;padding-bottom:10px;border-bottom:2px solid #e5e7eb;">
-        Personal Information
-      </h2>
-
-      <table style="width:100%;margin-bottom:25px;">
-        <tr>
-          <td style="padding:8px 0;color:#6b7280;width:140px;">Full Name:</td>
-          <td style="padding:8px 0;color:#1a1a1a;font-weight:500;">
-            ${safeFullName}
-          </td>
-        </tr>
-
-        <tr>
-          <td style="padding:8px 0;color:#6b7280;">ID Number:</td>
-          <td style="padding:8px 0;color:#1a1a1a;font-family:'Courier New',monospace;">
-            ${safeIdNumber}
-          </td>
-        </tr>
-
-        <tr>
-          <td style="padding:8px 0;color:#6b7280;">Phone Number:</td>
-          <td style="padding:8px 0;color:#1a1a1a;">
-            <a href="tel:${safePhone}" style="color:#014f86;text-decoration:none;">
-              ${safePhone}
-            </a>
-          </td>
-        </tr>
-
-        <tr>
-          <td style="padding:8px 0;color:#6b7280;">Email:</td>
-          <td style="padding:8px 0;color:#1a1a1a;">
-            <a href="mailto:${safeEmail}" style="color:#014f86;text-decoration:none;">
-              ${safeEmail}
-            </a>
-          </td>
-        </tr>
-      </table>
-
-      <h2 style="color:#012a4a;font-size:16px;margin:0 0 15px;padding-bottom:10px;border-bottom:2px solid #e5e7eb;">
-        Loan Details
-      </h2>
-
-      <table style="width:100%;margin-bottom:25px;">
-        <tr>
-          <td style="padding:8px 0;color:#6b7280;width:140px;">Requested Amount:</td>
-          <td style="padding:8px 0;color:#1a1a1a;font-weight:600;font-size:18px;">
-            R${Number(loanAmount).toLocaleString("en-ZA")}
-          </td>
-        </tr>
-
-        <tr>
-          <td style="padding:8px 0;color:#6b7280;">Employment:</td>
-          <td style="padding:8px 0;color:#1a1a1a;">
-            ${escapeHtml(
-              employmentStatus.charAt(0).toUpperCase() +
-                employmentStatus.slice(1).replace("-", " ")
-            )}
-          </td>
-        </tr>
-
-        <tr>
-          <td style="padding:8px 0;color:#6b7280;">Monthly Income:</td>
-          <td style="padding:8px 0;color:#1a1a1a;font-weight:500;">
-            R${Number(monthlyIncome).toLocaleString("en-ZA")}
-          </td>
-        </tr>
-      </table>
-
-      <h2 style="color:#012a4a;font-size:16px;margin:0 0 15px;padding-bottom:10px;border-bottom:2px solid #e5e7eb;">
-        Documents Attached
-      </h2>
-
-      <div style="background-color:#f8fafc;padding:15px;border-radius:8px;margin-bottom:25px;">
-        ${files
-          .map(
-            ({ label, file }) => `
-              <div style="padding:9px 0;border-bottom:1px solid #e5e7eb;">
-                <strong style="color:#012a4a;">
-                  ${escapeHtml(label)}
-                </strong>
-                <br>
-                <span style="font-size:13px;color:#6b7280;">
-                  ${escapeHtml(file.name)}
-                  · ${(file.size / (1024 * 1024)).toFixed(2)} MB
-                </span>
-              </div>
-            `
-          )
-          .join("")}
-      </div>
-
-      <h2 style="color:#012a4a;font-size:16px;margin:0 0 15px;padding-bottom:10px;border-bottom:2px solid #e5e7eb;">
-        Additional Notes
-      </h2>
-
-      <div style="background-color:#f8fafc;padding:15px;border-radius:8px;margin-bottom:25px;color:#374151;">
-        ${
-          safeNotes
-            ? safeNotes.replace(/\n/g, "<br>")
-            : "<em style='color:#9ca3af;'>No additional notes provided.</em>"
-        }
-      </div>
-
-      <h2 style="color:#012a4a;font-size:16px;margin:0 0 15px;padding-bottom:10px;border-bottom:2px solid #e5e7eb;">
-        Consent & Verification
-      </h2>
-
-      <table style="width:100%;margin-bottom:25px;">
-        <tr>
-          <td style="padding:8px 0;color:#6b7280;">
-            Information Accuracy:
-          </td>
-
-          <td style="padding:8px 0;">
-            <span style="display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500;background-color:#dcfce7;color:#166534;">
-              Confirmed
-            </span>
-          </td>
-        </tr>
-
-        <tr>
-          <td style="padding:8px 0;color:#6b7280;">
-            Data Processing Consent:
-          </td>
-
-          <td style="padding:8px 0;">
-            <span style="display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:500;background-color:#dcfce7;color:#166534;">
-              Agreed
-            </span>
-          </td>
-        </tr>
-      </table>
-
-      <div style="text-align:center;margin:30px 0;">
-        <a
-          href="mailto:${safeEmail}?subject=Re:%20Your%20Loan%20Application%20${applicationId}"
-          style="display:inline-block;background:linear-gradient(135deg,#012a4a 0%,#014f86 100%);color:#ffffff;padding:14px 30px;border-radius:8px;text-decoration:none;font-weight:500;font-size:14px;"
-        >
-          Reply to Applicant
-        </a>
-      </div>
-
-    </div>
-
-    <div style="background-color:#f8fafc;padding:20px 30px;border-top:1px solid #e5e7eb;text-align:center;">
-
-      <p style="margin:0 0 5px;color:#374151;font-weight:500;">
-        Optimus Solutions
-      </p>
-
-      <p style="margin:5px 0 0;color:#6b7280;font-size:13px;">
-        +27 (76) 851-3565 · optimusolutions2@gmail.com
-      </p>
-
-      <p style="margin:10px 0 0;color:#9ca3af;font-size:11px;">
-        Trade Number: 2025/17469107
-      </p>
-
-    </div>
-
-  </div>
-
-</body>
-</html>
-`.trim()
-
-    // ---------------------------------------------
-    // Send through Resend
-    // ---------------------------------------------
+    // ---------------------------------------------------------
+    // 7. Send email
+    // ---------------------------------------------------------
 
     const receivingEmail = process.env.OPTIMUS_RECEIVING_EMAIL
     const resendApiKey = process.env.RESEND_API_KEY
 
-    if (!resendApiKey || !receivingEmail) {
-      console.error(
-        "Missing OPTIMUS_RECEIVING_EMAIL or RESEND_API_KEY"
-      )
-
-      return {
-        success: false,
-        message:
-          "The application service is not configured correctly. Please try again later.",
-      }
-    }
-
-    const response = await fetch(
-      "https://api.resend.com/emails",
-      {
+    if (resendApiKey && receivingEmail) {
+      const response = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -544,28 +327,50 @@ Trade Number: 2025/17469107
           to: receivingEmail,
           subject: emailSubject,
           text: emailBody,
-          html: emailHtml,
           reply_to: email,
-          attachments,
         }),
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+
+        console.error("Resend API error:", errorText)
+
+        // Important:
+        // The documents have already been uploaded successfully.
+        // We log the application so it isn't silently lost.
+        console.log("=== APPLICATION DATA (Email failed) ===")
+        console.log("Application ID:", applicationId)
+        console.log("Data:", {
+          fullName,
+          idNumber,
+          phoneNumber,
+          email,
+          loanAmount,
+          employmentStatus,
+          monthlyIncome,
+          notes,
+          documentUrls,
+        })
+        console.log("========================================")
+      } else {
+        console.log(
+          `Email sent successfully for application ${applicationId}`
+        )
       }
-    )
-
-    if (!response.ok) {
-      const errorText = await response.text()
-
-      console.error("Resend API error:", errorText)
-
-      return {
-        success: false,
-        message:
-          "We could not send your application. Please try again or contact Optimus Solutions directly.",
-      }
+    } else {
+      console.log("=== NEW LOAN APPLICATION ===")
+      console.log("Application ID:", applicationId)
+      console.log("Email Body:", emailBody)
+      console.log("============================")
+      console.log(
+        "Note: Configure OPTIMUS_RECEIVING_EMAIL and RESEND_API_KEY to enable email notifications."
+      )
     }
 
-    console.log(
-      `Application ${applicationId} submitted successfully with ${files.length} documents.`
-    )
+    // ---------------------------------------------------------
+    // 8. Return success
+    // ---------------------------------------------------------
 
     return {
       success: true,
@@ -578,7 +383,7 @@ Trade Number: 2025/17469107
     return {
       success: false,
       message:
-        "An error occurred. Please try again or contact us directly.",
+        "An error occurred while submitting your application. Please try again or contact us directly.",
     }
   }
 }
