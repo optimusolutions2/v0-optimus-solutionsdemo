@@ -71,9 +71,9 @@ const initialFormData: LoanApplicationData = {
   consentToProcess: false,
 }
 
-type FormErrorKey = keyof LoanApplicationData | keyof DocumentFiles
-
-type DocumentField = keyof DocumentFiles
+type FormErrorKey =
+  | keyof LoanApplicationData
+  | keyof DocumentFiles
 
 export function ApplicationForm() {
   const [formData, setFormData] =
@@ -87,8 +87,12 @@ export function ApplicationForm() {
   >({})
 
   const [isSubmitting, setIsSubmitting] = useState(false)
+
   const [isSubmitted, setIsSubmitted] = useState(false)
-  const [submitError, setSubmitError] = useState<string | null>(null)
+
+  const [submitError, setSubmitError] =
+    useState<string | null>(null)
+
   const [applicationId, setApplicationId] =
     useState<string | null>(null)
 
@@ -102,7 +106,7 @@ export function ApplicationForm() {
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    field: DocumentField
+    field: keyof DocumentFiles
   ) => {
     const file = e.target.files?.[0]
 
@@ -143,7 +147,9 @@ export function ApplicationForm() {
     }))
   }
 
-  const removeFile = (field: DocumentField) => {
+  const removeFile = (
+    field: keyof DocumentFiles
+  ) => {
     setDocuments((prev) => ({
       ...prev,
       [field]: null,
@@ -156,7 +162,9 @@ export function ApplicationForm() {
   }
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<Record<FormErrorKey, string>> = {}
+    const newErrors: Partial<
+      Record<FormErrorKey, string>
+    > = {}
 
     if (!formData.fullName.trim()) {
       newErrors.fullName = "Full name is required"
@@ -196,12 +204,9 @@ export function ApplicationForm() {
         "Please enter a valid email address"
     }
 
-    if (
-      !formData.loanAmount.trim() ||
-      Number(formData.loanAmount) <= 0
-    ) {
+    if (!formData.loanAmount.trim()) {
       newErrors.loanAmount =
-        "Please enter a valid loan amount"
+        "Loan amount is required"
     }
 
     if (!formData.employmentStatus.trim()) {
@@ -209,12 +214,9 @@ export function ApplicationForm() {
         "Employment status is required"
     }
 
-    if (
-      !formData.monthlyIncome.trim() ||
-      Number(formData.monthlyIncome) <= 0
-    ) {
+    if (!formData.monthlyIncome.trim()) {
       newErrors.monthlyIncome =
-        "Please enter a valid monthly income"
+        "Monthly income is required"
     }
 
     if (!documents.idFront) {
@@ -240,8 +242,11 @@ export function ApplicationForm() {
         "3 months payslips are required"
     }
 
-    const totalSize = Object.values(documents).reduce(
-      (total, file) => total + (file?.size || 0),
+    const totalSize = Object.values(
+      documents
+    ).reduce(
+      (total, file) =>
+        total + (file?.size || 0),
       0
     )
 
@@ -265,62 +270,11 @@ export function ApplicationForm() {
     return Object.keys(newErrors).length === 0
   }
 
-  /**
-   * Upload one document directly to the API route.
-   *
-   * IMPORTANT:
-   * The actual file does NOT go through the Server Action.
-   */
-  const uploadDocument = async (
-    file: File,
-    applicationId: string,
-    documentType: string
-  ) => {
-    const uploadData = new FormData()
-
-    uploadData.append("file", file)
-    uploadData.append(
-      "applicationId",
-      applicationId
-    )
-    uploadData.append(
-      "documentType",
-      documentType
-    )
-
-    const response = await fetch("/api/upload", {
-      method: "POST",
-      body: uploadData,
-    })
-
-    let result: {
-      success?: boolean
-      url?: string
-      message?: string
-    }
-
-    try {
-      result = await response.json()
-    } catch {
-      throw new Error(
-        "The document upload returned an invalid response."
-      )
-    }
-
-    if (!response.ok || !result.success || !result.url) {
-      throw new Error(
-        result.message ||
-          `Failed to upload ${documentType}.`
-      )
-    }
-
-    return result.url
-  }
-
   const handleSubmit = async (
     e: React.FormEvent
   ) => {
     e.preventDefault()
+
     setSubmitError(null)
 
     if (!validateForm()) {
@@ -330,94 +284,11 @@ export function ApplicationForm() {
     setIsSubmitting(true)
 
     try {
-      /**
-       * Generate the application ID here so the documents
-       * can be stored under the correct application folder.
-       */
-      const newApplicationId = `OPT-${Date.now()}-${Math.random()
-        .toString(36)
-        .substring(2, 7)
-        .toUpperCase()}`
-
-      /**
-       * Upload documents directly to /api/upload.
-       *
-       * Only the resulting URLs will later be sent to
-       * the Server Action.
-       */
-      const documentUrls: {
-        idFront: string
-        idBack: string
-        bankStatement: string
-        proofOfAddress: string
-        payslips: string
-      } = {
-        idFront: "",
-        idBack: "",
-        bankStatement: "",
-        proofOfAddress: "",
-        payslips: "",
-      }
-
-      if (documents.idFront) {
-        documentUrls.idFront =
-          await uploadDocument(
-            documents.idFront,
-            newApplicationId,
-            "id-front"
-          )
-      }
-
-      if (documents.idBack) {
-        documentUrls.idBack =
-          await uploadDocument(
-            documents.idBack,
-            newApplicationId,
-            "id-back"
-          )
-      }
-
-      if (documents.bankStatement) {
-        documentUrls.bankStatement =
-          await uploadDocument(
-            documents.bankStatement,
-            newApplicationId,
-            "3-months-bank-statement"
-          )
-      }
-
-      if (documents.proofOfAddress) {
-        documentUrls.proofOfAddress =
-          await uploadDocument(
-            documents.proofOfAddress,
-            newApplicationId,
-            "proof-of-address"
-          )
-      }
-
-      if (documents.payslips) {
-        documentUrls.payslips =
-          await uploadDocument(
-            documents.payslips,
-            newApplicationId,
-            "3-months-payslips"
-          )
-      }
-
-      /**
-       * IMPORTANT:
-       * At this point all files are already in Vercel Blob.
-       *
-       * We now send ONLY text + URLs to the Server Action.
-       *
-       * This avoids the FUNCTION_PAYLOAD_TOO_LARGE error.
-       */
       const submission = new FormData()
 
-      submission.append(
-        "applicationId",
-        newApplicationId
-      )
+      // ---------------------------------------------------------
+      // Application data
+      // ---------------------------------------------------------
 
       submission.append(
         "fullName",
@@ -469,38 +340,55 @@ export function ApplicationForm() {
         String(formData.consentToProcess)
       )
 
-      submission.append(
-        "idFrontUrl",
-        documentUrls.idFront
-      )
+      // ---------------------------------------------------------
+      // Documents
+      // ---------------------------------------------------------
 
-      submission.append(
-        "idBackUrl",
-        documentUrls.idBack
-      )
+      if (documents.idFront) {
+        submission.append(
+          "idFront",
+          documents.idFront
+        )
+      }
 
-      submission.append(
-        "bankStatementUrl",
-        documentUrls.bankStatement
-      )
+      if (documents.idBack) {
+        submission.append(
+          "idBack",
+          documents.idBack
+        )
+      }
 
-      submission.append(
-        "proofOfAddressUrl",
-        documentUrls.proofOfAddress
-      )
+      if (documents.bankStatement) {
+        submission.append(
+          "bankStatement",
+          documents.bankStatement
+        )
+      }
 
-      submission.append(
-        "payslipsUrl",
-        documentUrls.payslips
-      )
+      if (documents.proofOfAddress) {
+        submission.append(
+          "proofOfAddress",
+          documents.proofOfAddress
+        )
+      }
+
+      if (documents.payslips) {
+        submission.append(
+          "payslips",
+          documents.payslips
+        )
+      }
+
+      // ---------------------------------------------------------
+      // Submit
+      // ---------------------------------------------------------
 
       const result =
         await submitApplication(submission)
 
       if (result.success) {
         setApplicationId(
-          result.applicationId ||
-            newApplicationId
+          result.applicationId || null
         )
 
         setIsSubmitted(true)
@@ -514,9 +402,7 @@ export function ApplicationForm() {
       )
 
       setSubmitError(
-        error instanceof Error
-          ? error.message
-          : "An unexpected error occurred. Please try again."
+        "An unexpected error occurred. Please try again."
       )
     } finally {
       setIsSubmitting(false)
@@ -536,9 +422,8 @@ export function ApplicationForm() {
       type,
     } = e.target
 
-    const checked = (
-      e.target as HTMLInputElement
-    ).checked
+    const checked =
+      (e.target as HTMLInputElement).checked
 
     setFormData((prev) => ({
       ...prev,
@@ -548,9 +433,7 @@ export function ApplicationForm() {
           : value,
     }))
 
-    if (
-      errors[name as FormErrorKey]
-    ) {
+    if (errors[name as FormErrorKey]) {
       setErrors((prev) => ({
         ...prev,
         [name]: undefined,
@@ -563,7 +446,7 @@ export function ApplicationForm() {
     label,
     description,
   }: {
-    field: DocumentField
+    field: keyof DocumentFiles
     label: string
     description: string
   }) => {
@@ -720,15 +603,13 @@ export function ApplicationForm() {
             )}
 
             <p className="mb-3 leading-relaxed text-muted-foreground">
-              Thank you. Your application has
-              been received and is currently under
-              review. You can expect a response
-              within 24–48 hours.
+              Thank you. Your application has been received and is
+              currently under review. You can expect a response within
+              24–48 hours.
             </p>
 
             <p className="mb-8 text-sm text-muted-foreground/80">
-              A consultant may contact you to
-              complete the next steps.
+              A consultant may contact you to complete the next steps.
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
@@ -809,6 +690,7 @@ export function ApplicationForm() {
           )}
 
           {/* Personal Information */}
+
           <div className="space-y-4">
             <h4 className="text-sm font-medium text-muted-foreground">
               Personal Information
@@ -826,9 +708,7 @@ export function ApplicationForm() {
                 <Input
                   id="fullName"
                   name="fullName"
-                  value={
-                    formData.fullName
-                  }
+                  value={formData.fullName}
                   onChange={handleChange}
                   placeholder="Enter your full name"
                   className={
@@ -856,9 +736,7 @@ export function ApplicationForm() {
                 <Input
                   id="idNumber"
                   name="idNumber"
-                  value={
-                    formData.idNumber
-                  }
+                  value={formData.idNumber}
                   onChange={handleChange}
                   placeholder="13-digit SA ID number"
                   className={
@@ -878,6 +756,7 @@ export function ApplicationForm() {
           </div>
 
           {/* Contact Information */}
+
           <div className="space-y-4">
             <h4 className="text-sm font-medium text-muted-foreground">
               Contact Information
@@ -895,9 +774,7 @@ export function ApplicationForm() {
                 <Input
                   id="phoneNumber"
                   name="phoneNumber"
-                  value={
-                    formData.phoneNumber
-                  }
+                  value={formData.phoneNumber}
                   onChange={handleChange}
                   placeholder="e.g., 0821234567"
                   className={
@@ -946,6 +823,7 @@ export function ApplicationForm() {
           </div>
 
           {/* Loan Details */}
+
           <div className="space-y-4">
             <h4 className="text-sm font-medium text-muted-foreground">
               Loan Details
@@ -963,9 +841,7 @@ export function ApplicationForm() {
                 id="loanAmount"
                 name="loanAmount"
                 type="number"
-                value={
-                  formData.loanAmount
-                }
+                value={formData.loanAmount}
                 onChange={handleChange}
                 placeholder="e.g., 10000"
                 className={
@@ -984,6 +860,7 @@ export function ApplicationForm() {
           </div>
 
           {/* Employment Information */}
+
           <div className="space-y-4">
             <h4 className="text-sm font-medium text-muted-foreground">
               Employment Information
@@ -1001,9 +878,7 @@ export function ApplicationForm() {
                 <select
                   id="employmentStatus"
                   name="employmentStatus"
-                  value={
-                    formData.employmentStatus
-                  }
+                  value={formData.employmentStatus}
                   onChange={handleChange}
                   className={`flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
                     errors.employmentStatus
@@ -1034,9 +909,7 @@ export function ApplicationForm() {
 
                 {errors.employmentStatus && (
                   <p className="mt-1 text-sm text-destructive">
-                    {
-                      errors.employmentStatus
-                    }
+                    {errors.employmentStatus}
                   </p>
                 )}
               </div>
@@ -1053,9 +926,7 @@ export function ApplicationForm() {
                   id="monthlyIncome"
                   name="monthlyIncome"
                   type="number"
-                  value={
-                    formData.monthlyIncome
-                  }
+                  value={formData.monthlyIncome}
                   onChange={handleChange}
                   placeholder="e.g., 15000"
                   className={
@@ -1067,9 +938,7 @@ export function ApplicationForm() {
 
                 {errors.monthlyIncome && (
                   <p className="mt-1 text-sm text-destructive">
-                    {
-                      errors.monthlyIncome
-                    }
+                    {errors.monthlyIncome}
                   </p>
                 )}
               </div>
@@ -1077,6 +946,7 @@ export function ApplicationForm() {
           </div>
 
           {/* Required Documents */}
+
           <div className="space-y-5 rounded-xl border border-border bg-muted/20 p-5">
             <div>
               <h4 className="text-base font-semibold text-foreground">
@@ -1084,9 +954,8 @@ export function ApplicationForm() {
               </h4>
 
               <p className="mt-1 text-sm text-muted-foreground">
-                Please provide the documents below.
-                All documents are required to process
-                your application.
+                Please provide the documents below. All documents are
+                required to process your application.
               </p>
             </div>
 
@@ -1117,13 +986,14 @@ export function ApplicationForm() {
 
               <DocumentUpload
                 field="payslips"
-                label="3 Months Payslip"
-                description="Upload your latest 3 months of payslips as one PDF or image file."
+                label="3 Months Payslips"
+                description="Upload one PDF containing your latest 3 months of payslips."
               />
             </div>
           </div>
 
           {/* Additional Notes */}
+
           <div>
             <label
               htmlFor="notes"
@@ -1144,14 +1014,13 @@ export function ApplicationForm() {
           </div>
 
           {/* Confirmation */}
+
           <div className="flex items-start gap-3">
             <input
               type="checkbox"
               id="confirmAccurate"
               name="confirmAccurate"
-              checked={
-                formData.confirmAccurate
-              }
+              checked={formData.confirmAccurate}
               onChange={handleChange}
               className="mt-1 h-4 w-4 rounded border-input text-primary focus:ring-ring"
             />
@@ -1160,11 +1029,9 @@ export function ApplicationForm() {
               htmlFor="confirmAccurate"
               className="text-sm text-muted-foreground"
             >
-              I confirm that the information
-              provided is accurate and complete. I
-              understand that providing false
-              information may result in my
-              application being rejected.
+              I confirm that the information provided is accurate and
+              complete. I understand that providing false information
+              may result in my application being rejected.
             </label>
           </div>
 
@@ -1175,15 +1042,14 @@ export function ApplicationForm() {
           )}
 
           {/* Data Processing Consent */}
+
           <div className="rounded-lg border border-border bg-muted/30 p-4">
             <div className="flex items-start gap-3">
               <input
                 type="checkbox"
                 id="consentToProcess"
                 name="consentToProcess"
-                checked={
-                  formData.consentToProcess
-                }
+                checked={formData.consentToProcess}
                 onChange={handleChange}
                 className="mt-1 h-4 w-4 rounded border-input text-primary focus:ring-ring"
               />
@@ -1193,19 +1059,16 @@ export function ApplicationForm() {
                   htmlFor="consentToProcess"
                   className="text-sm leading-relaxed text-foreground"
                 >
-                  I understand and agree that the
-                  information I provide may be used
-                  for application assessment,
-                  verification, and, if approved, for
-                  debit order processing and related
-                  payment administration.
+                  I understand and agree that the information I provide
+                  may be used for application assessment, verification,
+                  and, if approved, for debit order processing and
+                  related payment administration.
                 </label>
 
                 <p className="mt-2 text-xs text-muted-foreground">
-                  This acknowledgement does not
-                  replace any formal debit order or
-                  bank mandate that may be required
-                  after approval.
+                  This acknowledgement does not replace any formal debit
+                  order or bank mandate that may be required after
+                  approval.
                 </p>
               </div>
             </div>
@@ -1218,6 +1081,7 @@ export function ApplicationForm() {
           </div>
 
           {/* Submit Button */}
+
           <Button
             type="submit"
             disabled={isSubmitting}
