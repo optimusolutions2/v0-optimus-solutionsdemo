@@ -24,12 +24,12 @@ import {
 
 import { submitApplication } from "@/app/actions/submit-application"
 
-// ---------------------------------------------------------
-// Constants
-// ---------------------------------------------------------
+// =========================================================
+// CONSTANTS
+// =========================================================
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB per file
-const MAX_TOTAL_SIZE = 28 * 1024 * 1024 // 28MB total
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+const MAX_TOTAL_SIZE = 28 * 1024 * 1024 // 28MB
 
 const ALLOWED_FILE_TYPES = [
   "application/pdf",
@@ -37,9 +37,9 @@ const ALLOWED_FILE_TYPES = [
   "image/png",
 ]
 
-// ---------------------------------------------------------
-// Document types
-// ---------------------------------------------------------
+// =========================================================
+// DOCUMENT TYPES
+// =========================================================
 
 interface DocumentFiles {
   idFront: File | null
@@ -57,9 +57,9 @@ const initialDocuments: DocumentFiles = {
   payslips: null,
 }
 
-// ---------------------------------------------------------
-// Form data
-// ---------------------------------------------------------
+// =========================================================
+// FORM DATA
+// =========================================================
 
 export interface LoanApplicationData {
   fullName: string
@@ -87,17 +87,17 @@ const initialFormData: LoanApplicationData = {
   consentToProcess: false,
 }
 
-// ---------------------------------------------------------
-// Error types
-// ---------------------------------------------------------
+// =========================================================
+// ERROR TYPES
+// =========================================================
 
 type FormErrorKey =
   | keyof LoanApplicationData
   | keyof DocumentFiles
 
-// ---------------------------------------------------------
-// Component
-// ---------------------------------------------------------
+// =========================================================
+// COMPONENT
+// =========================================================
 
 export function ApplicationForm() {
   const [formData, setFormData] =
@@ -128,9 +128,9 @@ export function ApplicationForm() {
   const [applicationId, setApplicationId] =
     useState<string | null>(null)
 
-  // ---------------------------------------------------------
-  // Format file size
-  // ---------------------------------------------------------
+  // =======================================================
+  // FORMAT FILE SIZE
+  // =======================================================
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024 * 1024) {
@@ -143,9 +143,9 @@ export function ApplicationForm() {
     ).toFixed(1)} MB`
   }
 
-  // ---------------------------------------------------------
-  // File upload validation
-  // ---------------------------------------------------------
+  // =======================================================
+  // FILE CHANGE
+  // =======================================================
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -157,7 +157,9 @@ export function ApplicationForm() {
       return
     }
 
-    // Validate type
+    // -----------------------------------------------------
+    // Validate file type
+    // -----------------------------------------------------
 
     if (!ALLOWED_FILE_TYPES.includes(file.type)) {
       setErrors((prev) => ({
@@ -170,7 +172,9 @@ export function ApplicationForm() {
       return
     }
 
+    // -----------------------------------------------------
     // Validate individual file size
+    // -----------------------------------------------------
 
     if (file.size > MAX_FILE_SIZE) {
       setErrors((prev) => ({
@@ -183,7 +187,9 @@ export function ApplicationForm() {
       return
     }
 
-    // Calculate total size with new file
+    // -----------------------------------------------------
+    // Calculate combined size
+    // -----------------------------------------------------
 
     const totalSize = Object.entries(
       documents
@@ -206,15 +212,16 @@ export function ApplicationForm() {
       return
     }
 
-    // Store file
+    // -----------------------------------------------------
+    // Save file
+    // -----------------------------------------------------
 
     setDocuments((prev) => ({
       ...prev,
       [field]: file,
     }))
 
-    // Clear error
-
+    // Clear previous error
     setErrors((prev) => ({
       ...prev,
       [field]: undefined,
@@ -225,9 +232,9 @@ export function ApplicationForm() {
     e.target.value = ""
   }
 
-  // ---------------------------------------------------------
-  // Remove file
-  // ---------------------------------------------------------
+  // =======================================================
+  // REMOVE FILE
+  // =======================================================
 
   const removeFile = (
     field: keyof DocumentFiles
@@ -245,9 +252,9 @@ export function ApplicationForm() {
     setSubmitError(null)
   }
 
-  // ---------------------------------------------------------
-  // Check whether form is complete
-  // ---------------------------------------------------------
+  // =======================================================
+  // FORM COMPLETION
+  // =======================================================
 
   const cleanIdNumber =
     formData.idNumber.replace(/\s/g, "")
@@ -277,23 +284,27 @@ export function ApplicationForm() {
     formData.confirmAccurate &&
     formData.consentToProcess
 
-  // ---------------------------------------------------------
-  // Validate entire form
-  // ---------------------------------------------------------
+  // =======================================================
+  // VALIDATE FORM
+  // =======================================================
 
   const validateForm = (): boolean => {
     const newErrors: Partial<
       Record<FormErrorKey, string>
     > = {}
 
+    // -----------------------------------------------------
     // Full name
+    // -----------------------------------------------------
 
     if (!formData.fullName.trim()) {
       newErrors.fullName =
         "Full name is required."
     }
 
+    // -----------------------------------------------------
     // ID number
+    // -----------------------------------------------------
 
     const cleanId =
       formData.idNumber.replace(/\s/g, "")
@@ -306,7 +317,9 @@ export function ApplicationForm() {
         "Your South African ID number must contain exactly 13 digits."
     }
 
+    // -----------------------------------------------------
     // Phone
+    // -----------------------------------------------------
 
     const cleanPhone =
       formData.phoneNumber.replace(/\s/g, "")
@@ -323,7 +336,9 @@ export function ApplicationForm() {
         "Please enter a valid South African phone number."
     }
 
+    // -----------------------------------------------------
     // Email
+    // -----------------------------------------------------
 
     if (!formData.email.trim()) {
       newErrors.email =
@@ -337,38 +352,52 @@ export function ApplicationForm() {
         "Please enter a valid email address."
     }
 
+    // -----------------------------------------------------
     // Loan amount
+    // -----------------------------------------------------
 
     if (!formData.loanAmount.trim()) {
       newErrors.loanAmount =
         "Loan amount is required."
     } else if (
+      !Number.isFinite(
+        Number(formData.loanAmount)
+      ) ||
       Number(formData.loanAmount) <= 0
     ) {
       newErrors.loanAmount =
         "Please enter a valid loan amount."
     }
 
+    // -----------------------------------------------------
     // Employment
+    // -----------------------------------------------------
 
     if (!formData.employmentStatus.trim()) {
       newErrors.employmentStatus =
         "Employment status is required."
     }
 
-    // Income
+    // -----------------------------------------------------
+    // Monthly income
+    // -----------------------------------------------------
 
     if (!formData.monthlyIncome.trim()) {
       newErrors.monthlyIncome =
         "Monthly income is required."
     } else if (
+      !Number.isFinite(
+        Number(formData.monthlyIncome)
+      ) ||
       Number(formData.monthlyIncome) <= 0
     ) {
       newErrors.monthlyIncome =
         "Please enter a valid monthly income."
     }
 
+    // -----------------------------------------------------
     // Documents
+    // -----------------------------------------------------
 
     if (!documents.idFront) {
       newErrors.idFront =
@@ -395,7 +424,9 @@ export function ApplicationForm() {
         "3 months payslips are required."
     }
 
-    // Total document size
+    // -----------------------------------------------------
+    // Combined document size
+    // -----------------------------------------------------
 
     const totalSize =
       Object.values(documents).reduce(
@@ -409,14 +440,18 @@ export function ApplicationForm() {
         "The combined size of your documents cannot exceed 28MB."
     }
 
+    // -----------------------------------------------------
     // Confirmation
+    // -----------------------------------------------------
 
     if (!formData.confirmAccurate) {
       newErrors.confirmAccurate =
         "You must confirm that the information is accurate."
     }
 
+    // -----------------------------------------------------
     // Consent
+    // -----------------------------------------------------
 
     if (!formData.consentToProcess) {
       newErrors.consentToProcess =
@@ -425,14 +460,12 @@ export function ApplicationForm() {
 
     setErrors(newErrors)
 
-    return (
-      Object.keys(newErrors).length === 0
-    )
+    return Object.keys(newErrors).length === 0
   }
 
-  // ---------------------------------------------------------
-  // Submit application
-  // ---------------------------------------------------------
+  // =======================================================
+  // SUBMIT APPLICATION
+  // =======================================================
 
   const handleSubmit = async (
     e: React.FormEvent
@@ -440,8 +473,6 @@ export function ApplicationForm() {
     e.preventDefault()
 
     setSubmitError(null)
-
-    // Always validate again before submission
 
     if (!validateForm()) {
       return
@@ -458,9 +489,9 @@ export function ApplicationForm() {
     setIsSubmitting(true)
 
     try {
-      // -----------------------------------------------------
+      // ---------------------------------------------------
       // Generate application ID
-      // -----------------------------------------------------
+      // ---------------------------------------------------
 
       const newApplicationId =
         `OPT-${Date.now()}-${Math.random()
@@ -468,9 +499,9 @@ export function ApplicationForm() {
           .substring(2, 7)
           .toUpperCase()}`
 
-      // -----------------------------------------------------
-      // Documents to upload
-      // -----------------------------------------------------
+      // ---------------------------------------------------
+      // Documents
+      // ---------------------------------------------------
 
       const documentFields: (
         keyof DocumentFiles
@@ -483,15 +514,16 @@ export function ApplicationForm() {
       ]
 
       const documentUrls: Partial<
-        Record<
-          keyof DocumentFiles,
-          string
-        >
+        Record<keyof DocumentFiles, string>
       > = {}
 
-      // -----------------------------------------------------
-      // Upload documents directly to Vercel Blob
-      // -----------------------------------------------------
+      // ---------------------------------------------------
+      // Upload documents DIRECTLY to Vercel Blob
+      //
+      // IMPORTANT:
+      // The actual File objects NEVER go through the
+      // submitApplication server action.
+      // ---------------------------------------------------
 
       for (
         const field of documentFields
@@ -548,14 +580,20 @@ export function ApplicationForm() {
           blob.url
       }
 
+      // ---------------------------------------------------
       // Upload complete
+      // ---------------------------------------------------
 
       setUploadingDocument(null)
       setUploadProgress(100)
 
-      // -----------------------------------------------------
-      // Prepare lightweight server submission
-      // -----------------------------------------------------
+      // ---------------------------------------------------
+      // IMPORTANT:
+      // Create a LIGHTWEIGHT FormData.
+      //
+      // Only strings are sent to the server action.
+      // NO FILES.
+      // ---------------------------------------------------
 
       const submission =
         new FormData()
@@ -619,9 +657,9 @@ export function ApplicationForm() {
         )
       )
 
-      // -----------------------------------------------------
-      // Add document URLs
-      // -----------------------------------------------------
+      // ---------------------------------------------------
+      // Blob URLs only
+      // ---------------------------------------------------
 
       submission.append(
         "idFront",
@@ -635,14 +673,12 @@ export function ApplicationForm() {
 
       submission.append(
         "bankStatement",
-        documentUrls.bankStatement ||
-          ""
+        documentUrls.bankStatement || ""
       )
 
       submission.append(
         "proofOfAddress",
-        documentUrls.proofOfAddress ||
-          ""
+        documentUrls.proofOfAddress || ""
       )
 
       submission.append(
@@ -650,9 +686,9 @@ export function ApplicationForm() {
         documentUrls.payslips || ""
       )
 
-      // -----------------------------------------------------
-      // Call server action
-      // -----------------------------------------------------
+      // ---------------------------------------------------
+      // Submit lightweight application
+      // ---------------------------------------------------
 
       const result =
         await submitApplication(
@@ -688,9 +724,9 @@ export function ApplicationForm() {
     }
   }
 
-  // ---------------------------------------------------------
-  // Input changes
-  // ---------------------------------------------------------
+  // =======================================================
+  // INPUT CHANGES
+  // =======================================================
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -709,11 +745,9 @@ export function ApplicationForm() {
       (e.target as HTMLInputElement)
         .checked
 
-    // -------------------------------------------------------
+    // -----------------------------------------------------
     // ID number
-    // Digits only
-    // Maximum 13 digits
-    // -------------------------------------------------------
+    // -----------------------------------------------------
 
     if (name === "idNumber") {
       const digitsOnly =
@@ -733,12 +767,14 @@ export function ApplicationForm() {
         }))
       }
 
+      setSubmitError(null)
+
       return
     }
 
-    // -------------------------------------------------------
+    // -----------------------------------------------------
     // Normal inputs
-    // -------------------------------------------------------
+    // -----------------------------------------------------
 
     setFormData((prev) => ({
       ...prev,
@@ -760,9 +796,9 @@ export function ApplicationForm() {
     setSubmitError(null)
   }
 
-  // ---------------------------------------------------------
-  // Document upload component
-  // ---------------------------------------------------------
+  // =======================================================
+  // DOCUMENT UPLOAD COMPONENT
+  // =======================================================
 
   const DocumentUpload = ({
     field,
@@ -895,9 +931,9 @@ export function ApplicationForm() {
     )
   }
 
-  // ---------------------------------------------------------
-  // Success modal
-  // ---------------------------------------------------------
+  // =======================================================
+  // SUCCESS MODAL
+  // =======================================================
 
   const SuccessModal = () => {
     const [isVisible, setIsVisible] =
@@ -1007,9 +1043,9 @@ export function ApplicationForm() {
     )
   }
 
-  // ---------------------------------------------------------
-  // Submitted state
-  // ---------------------------------------------------------
+  // =======================================================
+  // SUBMITTED STATE
+  // =======================================================
 
   if (isSubmitted) {
     return (
@@ -1035,9 +1071,9 @@ export function ApplicationForm() {
     )
   }
 
-  // ---------------------------------------------------------
-  // Main form
-  // ---------------------------------------------------------
+  // =======================================================
+  // MAIN FORM
+  // =======================================================
 
   return (
     <Card className="border-0 bg-card shadow-lg">
@@ -1052,9 +1088,9 @@ export function ApplicationForm() {
           onSubmit={handleSubmit}
           className="space-y-6"
         >
-          {/* ------------------------------------------------ */}
-          {/* Submission error */}
-          {/* ------------------------------------------------ */}
+          {/* ================================================= */}
+          {/* SUBMISSION ERROR */}
+          {/* ================================================= */}
 
           {submitError && (
             <div className="flex items-start gap-3 rounded-lg border border-destructive/50 bg-destructive/10 p-4">
@@ -1072,9 +1108,9 @@ export function ApplicationForm() {
             </div>
           )}
 
-          {/* ------------------------------------------------ */}
-          {/* Personal Information */}
-          {/* ------------------------------------------------ */}
+          {/* ================================================= */}
+          {/* PERSONAL INFORMATION */}
+          {/* ================================================= */}
 
           <div className="space-y-4">
             <h4 className="text-sm font-medium text-muted-foreground">
@@ -1082,8 +1118,6 @@ export function ApplicationForm() {
             </h4>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              {/* Full name */}
-
               <div>
                 <label
                   htmlFor="fullName"
@@ -1115,8 +1149,6 @@ export function ApplicationForm() {
                   </p>
                 )}
               </div>
-
-              {/* ID number */}
 
               <div>
                 <label
@@ -1158,9 +1190,9 @@ export function ApplicationForm() {
             </div>
           </div>
 
-          {/* ------------------------------------------------ */}
-          {/* Contact Information */}
-          {/* ------------------------------------------------ */}
+          {/* ================================================= */}
+          {/* CONTACT INFORMATION */}
+          {/* ================================================= */}
 
           <div className="space-y-4">
             <h4 className="text-sm font-medium text-muted-foreground">
@@ -1168,8 +1200,6 @@ export function ApplicationForm() {
             </h4>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              {/* Phone */}
-
               <div>
                 <label
                   htmlFor="phoneNumber"
@@ -1204,8 +1234,6 @@ export function ApplicationForm() {
                   </p>
                 )}
               </div>
-
-              {/* Email */}
 
               <div>
                 <label
@@ -1242,9 +1270,9 @@ export function ApplicationForm() {
             </div>
           </div>
 
-          {/* ------------------------------------------------ */}
-          {/* Loan Details */}
-          {/* ------------------------------------------------ */}
+          {/* ================================================= */}
+          {/* LOAN DETAILS */}
+          {/* ================================================= */}
 
           <div className="space-y-4">
             <h4 className="text-sm font-medium text-muted-foreground">
@@ -1286,9 +1314,9 @@ export function ApplicationForm() {
             </div>
           </div>
 
-          {/* ------------------------------------------------ */}
-          {/* Employment Information */}
-          {/* ------------------------------------------------ */}
+          {/* ================================================= */}
+          {/* EMPLOYMENT */}
+          {/* ================================================= */}
 
           <div className="space-y-4">
             <h4 className="text-sm font-medium text-muted-foreground">
@@ -1296,8 +1324,6 @@ export function ApplicationForm() {
             </h4>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              {/* Employment */}
-
               <div>
                 <label
                   htmlFor="employmentStatus"
@@ -1351,8 +1377,6 @@ export function ApplicationForm() {
                 )}
               </div>
 
-              {/* Monthly income */}
-
               <div>
                 <label
                   htmlFor="monthlyIncome"
@@ -1391,9 +1415,9 @@ export function ApplicationForm() {
             </div>
           </div>
 
-          {/* ------------------------------------------------ */}
-          {/* Required Documents */}
-          {/* ------------------------------------------------ */}
+          {/* ================================================= */}
+          {/* DOCUMENTS */}
+          {/* ================================================= */}
 
           <div className="space-y-5 rounded-xl border border-border bg-muted/20 p-5">
             <div>
@@ -1442,9 +1466,9 @@ export function ApplicationForm() {
             </div>
           </div>
 
-          {/* ------------------------------------------------ */}
-          {/* Additional Notes */}
-          {/* ------------------------------------------------ */}
+          {/* ================================================= */}
+          {/* NOTES */}
+          {/* ================================================= */}
 
           <div>
             <label
@@ -1469,9 +1493,9 @@ export function ApplicationForm() {
             />
           </div>
 
-          {/* ------------------------------------------------ */}
-          {/* Accuracy confirmation */}
-          {/* ------------------------------------------------ */}
+          {/* ================================================= */}
+          {/* ACCURACY */}
+          {/* ================================================= */}
 
           <div className="flex items-start gap-3">
             <input
@@ -1508,9 +1532,9 @@ export function ApplicationForm() {
             </p>
           )}
 
-          {/* ------------------------------------------------ */}
-          {/* Data processing consent */}
-          {/* ------------------------------------------------ */}
+          {/* ================================================= */}
+          {/* CONSENT */}
+          {/* ================================================= */}
 
           <div className="rounded-lg border border-border bg-muted/30 p-4">
             <div className="flex items-start gap-3">
@@ -1559,9 +1583,9 @@ export function ApplicationForm() {
             )}
           </div>
 
-          {/* ------------------------------------------------ */}
-          {/* Upload status */}
-          {/* ------------------------------------------------ */}
+          {/* ================================================= */}
+          {/* UPLOAD STATUS */}
+          {/* ================================================= */}
 
           {isSubmitting &&
             uploadingDocument && (
@@ -1587,9 +1611,9 @@ export function ApplicationForm() {
               </div>
             )}
 
-          {/* ------------------------------------------------ */}
-          {/* Submit button */}
-          {/* ------------------------------------------------ */}
+          {/* ================================================= */}
+          {/* SUBMIT BUTTON */}
+          {/* ================================================= */}
 
           <Button
             type="submit"
@@ -1618,9 +1642,9 @@ export function ApplicationForm() {
             )}
           </Button>
 
-          {/* ------------------------------------------------ */}
-          {/* Incomplete message */}
-          {/* ------------------------------------------------ */}
+          {/* ================================================= */}
+          {/* INCOMPLETE MESSAGE */}
+          {/* ================================================= */}
 
           {!isFormComplete &&
             !isSubmitting && (
