@@ -86,17 +86,14 @@ export function ApplicationForm() {
     Partial<Record<FormErrorKey, string>>
   >({})
 
-  const [isSubmitting, setIsSubmitting] =
-    useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [applicationId, setApplicationId] = useState<string | null>(null)
 
-  const [isSubmitted, setIsSubmitted] =
-    useState(false)
-
-  const [submitError, setSubmitError] =
-    useState<string | null>(null)
-
-  const [applicationId, setApplicationId] =
-    useState<string | null>(null)
+  // ---------------------------------------------------------
+  // File size formatting
+  // ---------------------------------------------------------
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024 * 1024) {
@@ -153,9 +150,11 @@ export function ApplicationForm() {
     }))
   }
 
-  const removeFile = (
-    field: keyof DocumentFiles
-  ) => {
+  // ---------------------------------------------------------
+  // Remove uploaded file
+  // ---------------------------------------------------------
+
+  const removeFile = (field: keyof DocumentFiles) => {
     setDocuments((prev) => ({
       ...prev,
       [field]: null,
@@ -168,7 +167,33 @@ export function ApplicationForm() {
   }
 
   // ---------------------------------------------------------
-  // Form validation
+  // Check if form is complete
+  // ---------------------------------------------------------
+
+  const isFormComplete =
+    formData.fullName.trim() !== "" &&
+    /^\d{13}$/.test(
+      formData.idNumber.replace(/\s/g, "")
+    ) &&
+    /^(\+27|0)[0-9]{9}$/.test(
+      formData.phoneNumber.replace(/\s/g, "")
+    ) &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) &&
+    formData.loanAmount.trim() !== "" &&
+    Number(formData.loanAmount) > 0 &&
+    formData.employmentStatus.trim() !== "" &&
+    formData.monthlyIncome.trim() !== "" &&
+    Number(formData.monthlyIncome) > 0 &&
+    documents.idFront !== null &&
+    documents.idBack !== null &&
+    documents.bankStatement !== null &&
+    documents.proofOfAddress !== null &&
+    documents.payslips !== null &&
+    formData.confirmAccurate &&
+    formData.consentToProcess
+
+  // ---------------------------------------------------------
+  // Validate form
   // ---------------------------------------------------------
 
   const validateForm = (): boolean => {
@@ -176,27 +201,19 @@ export function ApplicationForm() {
       Record<FormErrorKey, string>
     > = {}
 
-    // Personal information
-
     if (!formData.fullName.trim()) {
-      newErrors.fullName =
-        "Full name is required."
+      newErrors.fullName = "Full name is required."
     }
-
-    // STRICT 13 DIGIT ID CHECK
 
     const cleanIdNumber =
       formData.idNumber.replace(/\s/g, "")
 
     if (!cleanIdNumber) {
-      newErrors.idNumber =
-        "ID number is required."
+      newErrors.idNumber = "ID number is required."
     } else if (!/^\d{13}$/.test(cleanIdNumber)) {
       newErrors.idNumber =
-        "ID number must contain exactly 13 digits."
+        "Your South African ID number must contain exactly 13 digits."
     }
-
-    // Phone
 
     const cleanPhone =
       formData.phoneNumber.replace(/\s/g, "")
@@ -204,18 +221,13 @@ export function ApplicationForm() {
     if (!cleanPhone) {
       newErrors.phoneNumber =
         "Phone number is required."
-    } else if (
-      !/^(\+27|0)[0-9]{9}$/.test(cleanPhone)
-    ) {
+    } else if (!/^(\+27|0)[0-9]{9}$/.test(cleanPhone)) {
       newErrors.phoneNumber =
-        "Please enter a valid SA phone number."
+        "Please enter a valid South African phone number."
     }
 
-    // Email
-
     if (!formData.email.trim()) {
-      newErrors.email =
-        "Email address is required."
+      newErrors.email = "Email address is required."
     } else if (
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
         formData.email
@@ -225,40 +237,26 @@ export function ApplicationForm() {
         "Please enter a valid email address."
     }
 
-    // Loan amount
-
     if (!formData.loanAmount.trim()) {
       newErrors.loanAmount =
         "Loan amount is required."
-    } else if (
-      Number(formData.loanAmount) <= 0
-    ) {
+    } else if (Number(formData.loanAmount) <= 0) {
       newErrors.loanAmount =
         "Please enter a valid loan amount."
     }
-
-    // Employment
 
     if (!formData.employmentStatus.trim()) {
       newErrors.employmentStatus =
         "Employment status is required."
     }
 
-    // Income
-
     if (!formData.monthlyIncome.trim()) {
       newErrors.monthlyIncome =
         "Monthly income is required."
-    } else if (
-      Number(formData.monthlyIncome) <= 0
-    ) {
+    } else if (Number(formData.monthlyIncome) <= 0) {
       newErrors.monthlyIncome =
         "Please enter a valid monthly income."
     }
-
-    // -------------------------------------------------------
-    // Required documents
-    // -------------------------------------------------------
 
     if (!documents.idFront) {
       newErrors.idFront =
@@ -285,35 +283,21 @@ export function ApplicationForm() {
         "3 months payslips are required."
     }
 
-    // -------------------------------------------------------
-    // Total file size
-    // -------------------------------------------------------
-
-    const totalSize = Object.values(
-      documents
-    ).reduce(
+    const totalSize = Object.values(documents).reduce(
       (total, file) =>
         total + (file?.size || 0),
       0
     )
 
     if (totalSize > MAX_TOTAL_SIZE) {
-      newErrors.payslips =
+      newErrors.bankStatement =
         "The combined size of your documents is too large. Maximum total size is 28MB."
     }
-
-    // -------------------------------------------------------
-    // Confirmation checkbox
-    // -------------------------------------------------------
 
     if (!formData.confirmAccurate) {
       newErrors.confirmAccurate =
         "You must confirm that the information is accurate."
     }
-
-    // -------------------------------------------------------
-    // Consent checkbox
-    // -------------------------------------------------------
 
     if (!formData.consentToProcess) {
       newErrors.consentToProcess =
@@ -346,7 +330,6 @@ export function ApplicationForm() {
       const submission = new FormData()
 
       // Application data
-
       submission.append(
         "fullName",
         formData.fullName
@@ -397,10 +380,7 @@ export function ApplicationForm() {
         String(formData.consentToProcess)
       )
 
-      // -------------------------------------------------------
       // Documents
-      // -------------------------------------------------------
-
       if (documents.idFront) {
         submission.append(
           "idFront",
@@ -429,8 +409,6 @@ export function ApplicationForm() {
         )
       }
 
-      // ONE payslip file
-
       if (documents.payslips) {
         submission.append(
           "payslips",
@@ -438,14 +416,8 @@ export function ApplicationForm() {
         )
       }
 
-      // -------------------------------------------------------
-      // Server submission
-      // -------------------------------------------------------
-
       const result =
-        await submitApplication(
-          submission
-        )
+        await submitApplication(submission)
 
       if (result.success) {
         setApplicationId(
@@ -488,8 +460,30 @@ export function ApplicationForm() {
     } = e.target
 
     const checked =
-      (e.target as HTMLInputElement)
-        .checked
+      (e.target as HTMLInputElement).checked
+
+    // -------------------------------------------------------
+    // ID number — digits only, maximum 13
+    // -------------------------------------------------------
+
+    if (name === "idNumber") {
+      const digitsOnly =
+        value.replace(/\D/g, "").slice(0, 13)
+
+      setFormData((prev) => ({
+        ...prev,
+        idNumber: digitsOnly,
+      }))
+
+      if (errors.idNumber) {
+        setErrors((prev) => ({
+          ...prev,
+          idNumber: undefined,
+        }))
+      }
+
+      return
+    }
 
     setFormData((prev) => ({
       ...prev,
@@ -499,9 +493,7 @@ export function ApplicationForm() {
           : value,
     }))
 
-    if (
-      errors[name as FormErrorKey]
-    ) {
+    if (errors[name as FormErrorKey]) {
       setErrors((prev) => ({
         ...prev,
         [name]: undefined,
@@ -679,15 +671,15 @@ export function ApplicationForm() {
             )}
 
             <p className="mb-3 leading-relaxed text-muted-foreground">
-              Thank you. Your application has
-              been received and is currently
-              under review. You can expect a
-              response within 24–48 hours.
+              Thank you. Your application has been
+              received and is currently under review.
+              You can expect a response within
+              24–48 hours.
             </p>
 
             <p className="mb-8 text-sm text-muted-foreground/80">
-              A consultant may contact you to
-              complete the next steps.
+              A consultant may contact you to complete
+              the next steps.
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
@@ -816,34 +808,16 @@ export function ApplicationForm() {
                   htmlFor="idNumber"
                   className="mb-1.5 block text-sm font-medium text-foreground"
                 >
-                  ID Number
+                  South African ID Number
                 </label>
 
                 <Input
                   id="idNumber"
                   name="idNumber"
-                  value={formData.idNumber}
-                  onChange={(e) => {
-                    const value =
-                      e.target.value.replace(
-                        /\D/g,
-                        ""
-                      )
-
-                    if (value.length <= 13) {
-                      setFormData((prev) => ({
-                        ...prev,
-                        idNumber: value,
-                      }))
-
-                      setErrors((prev) => ({
-                        ...prev,
-                        idNumber: undefined,
-                      }))
-                    }
-                  }}
                   inputMode="numeric"
                   maxLength={13}
+                  value={formData.idNumber}
+                  onChange={handleChange}
                   placeholder="13-digit SA ID number"
                   className={
                     errors.idNumber
@@ -853,7 +827,7 @@ export function ApplicationForm() {
                 />
 
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {formData.idNumber.length}/13 digits
+                  Enter exactly 13 digits.
                 </p>
 
                 {errors.idNumber && (
@@ -884,6 +858,7 @@ export function ApplicationForm() {
                 <Input
                   id="phoneNumber"
                   name="phoneNumber"
+                  inputMode="tel"
                   value={formData.phoneNumber}
                   onChange={handleChange}
                   placeholder="e.g., 0821234567"
@@ -951,6 +926,7 @@ export function ApplicationForm() {
                 id="loanAmount"
                 name="loanAmount"
                 type="number"
+                min="1"
                 value={formData.loanAmount}
                 onChange={handleChange}
                 placeholder="e.g., 10000"
@@ -1036,6 +1012,7 @@ export function ApplicationForm() {
                   id="monthlyIncome"
                   name="monthlyIncome"
                   type="number"
+                  min="1"
                   value={formData.monthlyIncome}
                   onChange={handleChange}
                   placeholder="e.g., 15000"
@@ -1064,9 +1041,8 @@ export function ApplicationForm() {
               </h4>
 
               <p className="mt-1 text-sm text-muted-foreground">
-                Please provide the documents below.
-                All documents are required to
-                process your application.
+                Please provide all documents below.
+                Each file must be no larger than 10MB.
               </p>
             </div>
 
@@ -1098,7 +1074,7 @@ export function ApplicationForm() {
               <DocumentUpload
                 field="payslips"
                 label="3 Months Payslips"
-                description="Upload your latest 3 months of payslips as one PDF or combined file."
+                description="Upload your latest 3 months payslips as one PDF or image file."
               />
             </div>
           </div>
@@ -1131,9 +1107,7 @@ export function ApplicationForm() {
               type="checkbox"
               id="confirmAccurate"
               name="confirmAccurate"
-              checked={
-                formData.confirmAccurate
-              }
+              checked={formData.confirmAccurate}
               onChange={handleChange}
               className="mt-1 h-4 w-4 rounded border-input text-primary focus:ring-ring"
             />
@@ -1142,11 +1116,10 @@ export function ApplicationForm() {
               htmlFor="confirmAccurate"
               className="text-sm text-muted-foreground"
             >
-              I confirm that the information
-              provided is accurate and complete. I
-              understand that providing false
-              information may result in my
-              application being rejected.
+              I confirm that the information provided
+              is accurate and complete. I understand that
+              providing false information may result in
+              my application being rejected.
             </label>
           </div>
 
@@ -1164,9 +1137,7 @@ export function ApplicationForm() {
                 type="checkbox"
                 id="consentToProcess"
                 name="consentToProcess"
-                checked={
-                  formData.consentToProcess
-                }
+                checked={formData.consentToProcess}
                 onChange={handleChange}
                 className="mt-1 h-4 w-4 rounded border-input text-primary focus:ring-ring"
               />
@@ -1177,18 +1148,17 @@ export function ApplicationForm() {
                   className="text-sm leading-relaxed text-foreground"
                 >
                   I understand and agree that the
-                  information I provide may be used
-                  for application assessment,
-                  verification, and, if approved,
-                  for debit order processing and
-                  related payment administration.
+                  information I provide may be used for
+                  application assessment, verification,
+                  and, if approved, for debit order
+                  processing and related payment
+                  administration.
                 </label>
 
                 <p className="mt-2 text-xs text-muted-foreground">
-                  This acknowledgement does not
-                  replace any formal debit order or
-                  bank mandate that may be required
-                  after approval.
+                  This acknowledgement does not replace
+                  any formal debit order or bank mandate
+                  that may be required after approval.
                 </p>
               </div>
             </div>
@@ -1204,8 +1174,15 @@ export function ApplicationForm() {
 
           <Button
             type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-[#012a4a] text-white hover:bg-[#013a63]"
+            disabled={
+              isSubmitting ||
+              !isFormComplete
+            }
+            className={`w-full text-white ${
+              isFormComplete && !isSubmitting
+                ? "bg-[#012a4a] hover:bg-[#013a63]"
+                : "cursor-not-allowed bg-gray-400"
+            }`}
             size="lg"
           >
             {isSubmitting ? (
@@ -1217,6 +1194,16 @@ export function ApplicationForm() {
               "Apply Now"
             )}
           </Button>
+
+          {!isFormComplete &&
+            !isSubmitting && (
+              <p className="text-center text-xs text-muted-foreground">
+                Please complete all required fields,
+                upload all required documents, and
+                accept both confirmations before
+                submitting.
+              </p>
+            )}
         </form>
       </CardContent>
     </Card>
