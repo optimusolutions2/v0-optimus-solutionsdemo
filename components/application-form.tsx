@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -86,19 +86,17 @@ export function ApplicationForm() {
     Partial<Record<FormErrorKey, string>>
   >({})
 
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState("")
-  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] =
+    useState(false)
+
+  const [isSubmitted, setIsSubmitted] =
+    useState(false)
 
   const [submitError, setSubmitError] =
     useState<string | null>(null)
 
   const [applicationId, setApplicationId] =
     useState<string | null>(null)
-
-  // ---------------------------------------------------------
-  // File size formatting
-  // ---------------------------------------------------------
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024 * 1024) {
@@ -109,7 +107,7 @@ export function ApplicationForm() {
   }
 
   // ---------------------------------------------------------
-  // File upload handler
+  // File upload
   // ---------------------------------------------------------
 
   const handleFileChange = (
@@ -153,15 +151,11 @@ export function ApplicationForm() {
       ...prev,
       [field]: undefined,
     }))
-
-    e.target.value = ""
   }
 
-  // ---------------------------------------------------------
-  // Remove uploaded file
-  // ---------------------------------------------------------
-
-  const removeFile = (field: keyof DocumentFiles) => {
+  const removeFile = (
+    field: keyof DocumentFiles
+  ) => {
     setDocuments((prev) => ({
       ...prev,
       [field]: null,
@@ -174,7 +168,7 @@ export function ApplicationForm() {
   }
 
   // ---------------------------------------------------------
-  // Validate everything before submitting
+  // Form validation
   // ---------------------------------------------------------
 
   const validateForm = (): boolean => {
@@ -182,25 +176,30 @@ export function ApplicationForm() {
       Record<FormErrorKey, string>
     > = {}
 
-    // Full name
+    // Personal information
+
     if (!formData.fullName.trim()) {
-      newErrors.fullName = "Full name is required."
+      newErrors.fullName =
+        "Full name is required."
     }
 
-    // ID number
-    const cleanIdNumber = formData.idNumber
-      .replace(/\D/g, "")
+    // STRICT 13 DIGIT ID CHECK
+
+    const cleanIdNumber =
+      formData.idNumber.replace(/\s/g, "")
 
     if (!cleanIdNumber) {
-      newErrors.idNumber = "ID number is required."
-    } else if (cleanIdNumber.length !== 13) {
+      newErrors.idNumber =
+        "ID number is required."
+    } else if (!/^\d{13}$/.test(cleanIdNumber)) {
       newErrors.idNumber =
         "ID number must contain exactly 13 digits."
     }
 
     // Phone
-    const cleanPhone = formData.phoneNumber
-      .replace(/\s/g, "")
+
+    const cleanPhone =
+      formData.phoneNumber.replace(/\s/g, "")
 
     if (!cleanPhone) {
       newErrors.phoneNumber =
@@ -213,11 +212,13 @@ export function ApplicationForm() {
     }
 
     // Email
+
     if (!formData.email.trim()) {
-      newErrors.email = "Email address is required."
+      newErrors.email =
+        "Email address is required."
     } else if (
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-        formData.email.trim()
+        formData.email
       )
     ) {
       newErrors.email =
@@ -225,6 +226,7 @@ export function ApplicationForm() {
     }
 
     // Loan amount
+
     if (!formData.loanAmount.trim()) {
       newErrors.loanAmount =
         "Loan amount is required."
@@ -236,12 +238,14 @@ export function ApplicationForm() {
     }
 
     // Employment
+
     if (!formData.employmentStatus.trim()) {
       newErrors.employmentStatus =
         "Employment status is required."
     }
 
-    // Monthly income
+    // Income
+
     if (!formData.monthlyIncome.trim()) {
       newErrors.monthlyIncome =
         "Monthly income is required."
@@ -252,7 +256,10 @@ export function ApplicationForm() {
         "Please enter a valid monthly income."
     }
 
-    // Documents
+    // -------------------------------------------------------
+    // Required documents
+    // -------------------------------------------------------
+
     if (!documents.idFront) {
       newErrors.idFront =
         "ID front is required."
@@ -278,8 +285,13 @@ export function ApplicationForm() {
         "3 months payslips are required."
     }
 
-    // Total document size
-    const totalSize = Object.values(documents).reduce(
+    // -------------------------------------------------------
+    // Total file size
+    // -------------------------------------------------------
+
+    const totalSize = Object.values(
+      documents
+    ).reduce(
       (total, file) =>
         total + (file?.size || 0),
       0
@@ -290,13 +302,19 @@ export function ApplicationForm() {
         "The combined size of your documents is too large. Maximum total size is 28MB."
     }
 
-    // Confirmation
+    // -------------------------------------------------------
+    // Confirmation checkbox
+    // -------------------------------------------------------
+
     if (!formData.confirmAccurate) {
       newErrors.confirmAccurate =
         "You must confirm that the information is accurate."
     }
 
-    // Consent
+    // -------------------------------------------------------
+    // Consent checkbox
+    // -------------------------------------------------------
+
     if (!formData.consentToProcess) {
       newErrors.consentToProcess =
         "You must agree to the data processing terms."
@@ -308,60 +326,7 @@ export function ApplicationForm() {
   }
 
   // ---------------------------------------------------------
-  // Upload one document
-  // ---------------------------------------------------------
-
-  const uploadDocument = async (
-    file: File,
-    applicationId: string,
-    documentType: string
-  ): Promise<string> => {
-    const uploadData = new FormData()
-
-    uploadData.append("file", file)
-    uploadData.append(
-      "applicationId",
-      applicationId
-    )
-    uploadData.append(
-      "documentType",
-      documentType
-    )
-
-    const response = await fetch(
-      "/api/upload",
-      {
-        method: "POST",
-        body: uploadData,
-      }
-    )
-
-    let result: {
-      success?: boolean
-      url?: string
-      message?: string
-    }
-
-    try {
-      result = await response.json()
-    } catch {
-      throw new Error(
-        "The upload server returned an invalid response."
-      )
-    }
-
-    if (!response.ok || !result.success || !result.url) {
-      throw new Error(
-        result.message ||
-          `Failed to upload ${documentType}.`
-      )
-    }
-
-    return result.url
-  }
-
-  // ---------------------------------------------------------
-  // Submit application
+  // Submit
   // ---------------------------------------------------------
 
   const handleSubmit = async (
@@ -371,108 +336,16 @@ export function ApplicationForm() {
 
     setSubmitError(null)
 
-    // Always validate first
-    const valid = validateForm()
-
-    if (!valid) {
-      return
-    }
-
-    if (isSubmitting) {
+    if (!validateForm()) {
       return
     }
 
     setIsSubmitting(true)
-    setUploadProgress("Preparing your application...")
 
     try {
-      // -----------------------------------------------------
-      // Generate application ID BEFORE uploading documents
-      // -----------------------------------------------------
-
-      const newApplicationId =
-        `OPT-${Date.now()}-${Math.random()
-          .toString(36)
-          .substring(2, 7)
-          .toUpperCase()}`
-
-      setApplicationId(newApplicationId)
-
-      // -----------------------------------------------------
-      // Upload documents individually
-      // -----------------------------------------------------
-
-      setUploadProgress(
-        "Uploading ID front..."
-      )
-
-      const idFrontUrl =
-        await uploadDocument(
-          documents.idFront!,
-          newApplicationId,
-          "id-front"
-        )
-
-      setUploadProgress(
-        "Uploading ID back..."
-      )
-
-      const idBackUrl =
-        await uploadDocument(
-          documents.idBack!,
-          newApplicationId,
-          "id-back"
-        )
-
-      setUploadProgress(
-        "Uploading 3 months bank statement..."
-      )
-
-      const bankStatementUrl =
-        await uploadDocument(
-          documents.bankStatement!,
-          newApplicationId,
-          "3-months-bank-statement"
-        )
-
-      setUploadProgress(
-        "Uploading proof of address..."
-      )
-
-      const proofOfAddressUrl =
-        await uploadDocument(
-          documents.proofOfAddress!,
-          newApplicationId,
-          "proof-of-address"
-        )
-
-      setUploadProgress(
-        "Uploading 3 months payslips..."
-      )
-
-      const payslipsUrl =
-        await uploadDocument(
-          documents.payslips!,
-          newApplicationId,
-          "3-months-payslips"
-        )
-
-      // -----------------------------------------------------
-      // Create SMALL FormData
-      // No actual files are sent here.
-      // Only text + URLs.
-      // -----------------------------------------------------
-
-      setUploadProgress(
-        "Submitting your application..."
-      )
-
       const submission = new FormData()
 
-      submission.append(
-        "applicationId",
-        newApplicationId
-      )
+      // Application data
 
       submission.append(
         "fullName",
@@ -516,69 +389,73 @@ export function ApplicationForm() {
 
       submission.append(
         "confirmAccurate",
-        String(
-          formData.confirmAccurate
-        )
+        String(formData.confirmAccurate)
       )
 
       submission.append(
         "consentToProcess",
-        String(
-          formData.consentToProcess
+        String(formData.consentToProcess)
+      )
+
+      // -------------------------------------------------------
+      // Documents
+      // -------------------------------------------------------
+
+      if (documents.idFront) {
+        submission.append(
+          "idFront",
+          documents.idFront
         )
-      )
+      }
 
-      // Document URLs
-      submission.append(
-        "idFrontUrl",
-        idFrontUrl
-      )
+      if (documents.idBack) {
+        submission.append(
+          "idBack",
+          documents.idBack
+        )
+      }
 
-      submission.append(
-        "idBackUrl",
-        idBackUrl
-      )
+      if (documents.bankStatement) {
+        submission.append(
+          "bankStatement",
+          documents.bankStatement
+        )
+      }
 
-      submission.append(
-        "bankStatementUrl",
-        bankStatementUrl
-      )
+      if (documents.proofOfAddress) {
+        submission.append(
+          "proofOfAddress",
+          documents.proofOfAddress
+        )
+      }
 
-      submission.append(
-        "proofOfAddressUrl",
-        proofOfAddressUrl
-      )
+      // ONE payslip file
 
-      submission.append(
-        "payslipsUrl",
-        payslipsUrl
-      )
+      if (documents.payslips) {
+        submission.append(
+          "payslips",
+          documents.payslips
+        )
+      }
 
-      // -----------------------------------------------------
-      // Call Server Action
-      // -----------------------------------------------------
+      // -------------------------------------------------------
+      // Server submission
+      // -------------------------------------------------------
 
       const result =
         await submitApplication(
           submission
         )
 
-      if (!result.success) {
-        setSubmitError(
-          result.message ||
-            "Unable to submit your application."
+      if (result.success) {
+        setApplicationId(
+          result.applicationId || null
         )
 
-        return
+        setIsSubmitted(true)
+      } else {
+        setSubmitError(result.message)
       }
-
-      setApplicationId(
-        result.applicationId ||
-          newApplicationId
-      )
-
-      setUploadProgress("")
-      setIsSubmitted(true)
     } catch (error) {
       console.error(
         "Form submission error:",
@@ -586,18 +463,15 @@ export function ApplicationForm() {
       )
 
       setSubmitError(
-        error instanceof Error
-          ? error.message
-          : "An unexpected error occurred. Please try again."
+        "An unexpected error occurred. Please try again."
       )
     } finally {
       setIsSubmitting(false)
-      setUploadProgress("")
     }
   }
 
   // ---------------------------------------------------------
-  // Handle normal form changes
+  // Input changes
   // ---------------------------------------------------------
 
   const handleChange = (
@@ -613,9 +487,9 @@ export function ApplicationForm() {
       type,
     } = e.target
 
-    const checked = (
-      e.target as HTMLInputElement
-    ).checked
+    const checked =
+      (e.target as HTMLInputElement)
+        .checked
 
     setFormData((prev) => ({
       ...prev,
@@ -626,9 +500,7 @@ export function ApplicationForm() {
     }))
 
     if (
-      errors[
-        name as FormErrorKey
-      ]
+      errors[name as FormErrorKey]
     ) {
       setErrors((prev) => ({
         ...prev,
@@ -638,31 +510,7 @@ export function ApplicationForm() {
   }
 
   // ---------------------------------------------------------
-  // ID number change
-  // ---------------------------------------------------------
-
-  const handleIdNumberChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = e.target.value
-      .replace(/\D/g, "")
-      .slice(0, 13)
-
-    setFormData((prev) => ({
-      ...prev,
-      idNumber: value,
-    }))
-
-    if (errors.idNumber) {
-      setErrors((prev) => ({
-        ...prev,
-        idNumber: undefined,
-      }))
-    }
-  }
-
-  // ---------------------------------------------------------
-  // Document Upload component
+  // Document upload component
   // ---------------------------------------------------------
 
   const DocumentUpload = ({
@@ -713,7 +561,6 @@ export function ApplicationForm() {
               }
               className="rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-white hover:text-destructive"
               aria-label={`Remove ${label}`}
-              disabled={isSubmitting}
             >
               <X className="h-4 w-4" />
             </button>
@@ -724,10 +571,6 @@ export function ApplicationForm() {
               error
                 ? "border-destructive bg-destructive/5"
                 : "border-border"
-            } ${
-              isSubmitting
-                ? "pointer-events-none opacity-60"
-                : ""
             }`}
           >
             <Upload className="mb-2 h-6 w-6 text-muted-foreground" />
@@ -750,7 +593,6 @@ export function ApplicationForm() {
                   field
                 )
               }
-              disabled={isSubmitting}
             />
           </label>
         )}
@@ -812,7 +654,6 @@ export function ApplicationForm() {
           }`}
         >
           <button
-            type="button"
             onClick={handleClose}
             className="absolute right-4 top-4 rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
@@ -838,11 +679,15 @@ export function ApplicationForm() {
             )}
 
             <p className="mb-3 leading-relaxed text-muted-foreground">
-              Thank you. Your application has been received and is currently under review. You can expect a response within 24–48 hours.
+              Thank you. Your application has
+              been received and is currently
+              under review. You can expect a
+              response within 24–48 hours.
             </p>
 
             <p className="mb-8 text-sm text-muted-foreground/80">
-              A consultant may contact you to complete the next steps.
+              A consultant may contact you to
+              complete the next steps.
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
@@ -931,6 +776,7 @@ export function ApplicationForm() {
           )}
 
           {/* Personal Information */}
+
           <div className="space-y-4">
             <h4 className="text-sm font-medium text-muted-foreground">
               Personal Information
@@ -951,7 +797,6 @@ export function ApplicationForm() {
                   value={formData.fullName}
                   onChange={handleChange}
                   placeholder="Enter your full name"
-                  disabled={isSubmitting}
                   className={
                     errors.fullName
                       ? "border-destructive"
@@ -978,13 +823,28 @@ export function ApplicationForm() {
                   id="idNumber"
                   name="idNumber"
                   value={formData.idNumber}
-                  onChange={
-                    handleIdNumberChange
-                  }
-                  placeholder="13-digit SA ID number"
+                  onChange={(e) => {
+                    const value =
+                      e.target.value.replace(
+                        /\D/g,
+                        ""
+                      )
+
+                    if (value.length <= 13) {
+                      setFormData((prev) => ({
+                        ...prev,
+                        idNumber: value,
+                      }))
+
+                      setErrors((prev) => ({
+                        ...prev,
+                        idNumber: undefined,
+                      }))
+                    }
+                  }}
                   inputMode="numeric"
                   maxLength={13}
-                  disabled={isSubmitting}
+                  placeholder="13-digit SA ID number"
                   className={
                     errors.idNumber
                       ? "border-destructive"
@@ -1006,6 +866,7 @@ export function ApplicationForm() {
           </div>
 
           {/* Contact Information */}
+
           <div className="space-y-4">
             <h4 className="text-sm font-medium text-muted-foreground">
               Contact Information
@@ -1026,7 +887,6 @@ export function ApplicationForm() {
                   value={formData.phoneNumber}
                   onChange={handleChange}
                   placeholder="e.g., 0821234567"
-                  disabled={isSubmitting}
                   className={
                     errors.phoneNumber
                       ? "border-destructive"
@@ -1056,7 +916,6 @@ export function ApplicationForm() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="your@email.com"
-                  disabled={isSubmitting}
                   className={
                     errors.email
                       ? "border-destructive"
@@ -1074,6 +933,7 @@ export function ApplicationForm() {
           </div>
 
           {/* Loan Details */}
+
           <div className="space-y-4">
             <h4 className="text-sm font-medium text-muted-foreground">
               Loan Details
@@ -1091,11 +951,9 @@ export function ApplicationForm() {
                 id="loanAmount"
                 name="loanAmount"
                 type="number"
-                min="1"
                 value={formData.loanAmount}
                 onChange={handleChange}
                 placeholder="e.g., 10000"
-                disabled={isSubmitting}
                 className={
                   errors.loanAmount
                     ? "border-destructive"
@@ -1112,6 +970,7 @@ export function ApplicationForm() {
           </div>
 
           {/* Employment Information */}
+
           <div className="space-y-4">
             <h4 className="text-sm font-medium text-muted-foreground">
               Employment Information
@@ -1129,11 +988,8 @@ export function ApplicationForm() {
                 <select
                   id="employmentStatus"
                   name="employmentStatus"
-                  value={
-                    formData.employmentStatus
-                  }
+                  value={formData.employmentStatus}
                   onChange={handleChange}
-                  disabled={isSubmitting}
                   className={`flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
                     errors.employmentStatus
                       ? "border-destructive"
@@ -1180,13 +1036,9 @@ export function ApplicationForm() {
                   id="monthlyIncome"
                   name="monthlyIncome"
                   type="number"
-                  min="1"
-                  value={
-                    formData.monthlyIncome
-                  }
+                  value={formData.monthlyIncome}
                   onChange={handleChange}
                   placeholder="e.g., 15000"
-                  disabled={isSubmitting}
                   className={
                     errors.monthlyIncome
                       ? "border-destructive"
@@ -1204,6 +1056,7 @@ export function ApplicationForm() {
           </div>
 
           {/* Required Documents */}
+
           <div className="space-y-5 rounded-xl border border-border bg-muted/20 p-5">
             <div>
               <h4 className="text-base font-semibold text-foreground">
@@ -1211,7 +1064,9 @@ export function ApplicationForm() {
               </h4>
 
               <p className="mt-1 text-sm text-muted-foreground">
-                Please provide all documents below. All documents are required to process your application.
+                Please provide the documents below.
+                All documents are required to
+                process your application.
               </p>
             </div>
 
@@ -1243,12 +1098,13 @@ export function ApplicationForm() {
               <DocumentUpload
                 field="payslips"
                 label="3 Months Payslips"
-                description="Upload your latest 3 months payslips as one PDF or image file."
+                description="Upload your latest 3 months of payslips as one PDF or combined file."
               />
             </div>
           </div>
 
           {/* Additional Notes */}
+
           <div>
             <label
               htmlFor="notes"
@@ -1263,13 +1119,13 @@ export function ApplicationForm() {
               value={formData.notes}
               onChange={handleChange}
               rows={3}
-              disabled={isSubmitting}
               placeholder="Any additional information you'd like to share..."
               className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             />
           </div>
 
           {/* Confirmation */}
+
           <div className="flex items-start gap-3">
             <input
               type="checkbox"
@@ -1279,7 +1135,6 @@ export function ApplicationForm() {
                 formData.confirmAccurate
               }
               onChange={handleChange}
-              disabled={isSubmitting}
               className="mt-1 h-4 w-4 rounded border-input text-primary focus:ring-ring"
             />
 
@@ -1287,7 +1142,11 @@ export function ApplicationForm() {
               htmlFor="confirmAccurate"
               className="text-sm text-muted-foreground"
             >
-              I confirm that the information provided is accurate and complete. I understand that providing false information may result in my application being rejected.
+              I confirm that the information
+              provided is accurate and complete. I
+              understand that providing false
+              information may result in my
+              application being rejected.
             </label>
           </div>
 
@@ -1298,6 +1157,7 @@ export function ApplicationForm() {
           )}
 
           {/* Data Processing Consent */}
+
           <div className="rounded-lg border border-border bg-muted/30 p-4">
             <div className="flex items-start gap-3">
               <input
@@ -1308,7 +1168,6 @@ export function ApplicationForm() {
                   formData.consentToProcess
                 }
                 onChange={handleChange}
-                disabled={isSubmitting}
                 className="mt-1 h-4 w-4 rounded border-input text-primary focus:ring-ring"
               />
 
@@ -1317,11 +1176,19 @@ export function ApplicationForm() {
                   htmlFor="consentToProcess"
                   className="text-sm leading-relaxed text-foreground"
                 >
-                  I understand and agree that the information I provide may be used for application assessment, verification, and, if approved, for debit order processing and related payment administration.
+                  I understand and agree that the
+                  information I provide may be used
+                  for application assessment,
+                  verification, and, if approved,
+                  for debit order processing and
+                  related payment administration.
                 </label>
 
                 <p className="mt-2 text-xs text-muted-foreground">
-                  This acknowledgement does not replace any formal debit order or bank mandate that may be required after approval.
+                  This acknowledgement does not
+                  replace any formal debit order or
+                  bank mandate that may be required
+                  after approval.
                 </p>
               </div>
             </div>
@@ -1333,25 +1200,8 @@ export function ApplicationForm() {
             )}
           </div>
 
-          {/* Upload / Submit Status */}
-          {isSubmitting &&
-            uploadProgress && (
-              <div className="flex items-center gap-3 rounded-lg border border-[#012a4a]/20 bg-[#012a4a]/5 p-4">
-                <Loader2 className="h-5 w-5 shrink-0 animate-spin text-[#012a4a]" />
-
-                <div>
-                  <p className="text-sm font-medium text-[#012a4a]">
-                    {uploadProgress}
-                  </p>
-
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    Please keep this page open until the submission is complete.
-                  </p>
-                </div>
-              </div>
-            )}
-
           {/* Submit Button */}
+
           <Button
             type="submit"
             disabled={isSubmitting}
@@ -1367,10 +1217,6 @@ export function ApplicationForm() {
               "Apply Now"
             )}
           </Button>
-
-          <p className="text-center text-xs text-muted-foreground">
-            All required information, documents and consent must be provided before your application can be submitted.
-          </p>
         </form>
       </CardContent>
     </Card>
