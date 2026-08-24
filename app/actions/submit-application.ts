@@ -8,8 +8,8 @@ export interface SubmitApplicationResult {
   applicationId?: string
 }
 
-const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
-const MAX_TOTAL_SIZE = 28 * 1024 * 1024 // 28MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB per file
+const MAX_TOTAL_SIZE = 28 * 1024 * 1024 // 28MB total
 
 const ALLOWED_FILE_TYPES = [
   "application/pdf",
@@ -22,9 +22,7 @@ const DOCUMENT_FIELDS = [
   "idBack",
   "bankStatement",
   "proofOfAddress",
-  "payslip1",
-  "payslip2",
-  "payslip3",
+  "payslips",
 ] as const
 
 type DocumentField = (typeof DOCUMENT_FIELDS)[number]
@@ -109,14 +107,16 @@ export async function submitApplication(
     if (!confirmAccurate) {
       return {
         success: false,
-        message: "You must confirm that the information is accurate.",
+        message:
+          "You must confirm that the information is accurate.",
       }
     }
 
     if (!consentToProcess) {
       return {
         success: false,
-        message: "You must agree to the data processing terms.",
+        message:
+          "You must agree to the data processing terms.",
       }
     }
 
@@ -129,19 +129,22 @@ export async function submitApplication(
       .substring(2, 7)
       .toUpperCase()}`
 
-    const submissionTimestamp = new Date().toLocaleString("en-ZA", {
-      timeZone: "Africa/Johannesburg",
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    })
+    const submissionTimestamp = new Date().toLocaleString(
+      "en-ZA",
+      {
+        timeZone: "Africa/Johannesburg",
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      }
+    )
 
     // ---------------------------------------------------------
-    // 4. Collect uploaded documents
+    // 4. Collect documents
     // ---------------------------------------------------------
 
     const uploadedFiles: {
@@ -164,14 +167,16 @@ export async function submitApplication(
       if (!ALLOWED_FILE_TYPES.includes(value.type)) {
         return {
           success: false,
-          message: `${field} must be a PDF, JPG, JPEG or PNG file.`,
+          message:
+            `${field} must be a PDF, JPG, JPEG or PNG file.`,
         }
       }
 
       if (value.size > MAX_FILE_SIZE) {
         return {
           success: false,
-          message: `${field} is too large. Maximum size is 10MB.`,
+          message:
+            `${field} is too large. Maximum size is 10MB.`,
         }
       }
 
@@ -195,7 +200,9 @@ export async function submitApplication(
     // 5. Upload documents to Vercel Blob
     // ---------------------------------------------------------
 
-    const documentUrls: Partial<Record<DocumentField, string>> = {}
+    const documentUrls: Partial<
+      Record<DocumentField, string>
+    > = {}
 
     for (const { field, file } of uploadedFiles) {
       const extension =
@@ -216,10 +223,11 @@ export async function submitApplication(
     }
 
     // ---------------------------------------------------------
-    // 6. Prepare plain-text email
+    // 6. Prepare email
     // ---------------------------------------------------------
 
-    const emailSubject = `New Loan Application: ${fullName} - ${applicationId}`
+    const emailSubject =
+      `New Loan Application: ${fullName} - ${applicationId}`
 
     const emailBody = `
 NEW LOAN APPLICATION
@@ -292,14 +300,8 @@ ${documentUrls.bankStatement || "Not available"}
 Proof of Address:
 ${documentUrls.proofOfAddress || "Not available"}
 
-Payslip Month 1:
-${documentUrls.payslip1 || "Not available"}
-
-Payslip Month 2:
-${documentUrls.payslip2 || "Not available"}
-
-Payslip Month 3:
-${documentUrls.payslip3 || "Not available"}
+3 Months Payslips:
+${documentUrls.payslips || "Not available"}
 
 
 Optimus Solutions
@@ -309,62 +311,55 @@ Trade Number: 2025/17469107
 `.trim()
 
     // ---------------------------------------------------------
-    // 7. Send email
+    // 7. Send notification email
     // ---------------------------------------------------------
 
-    const receivingEmail = process.env.OPTIMUS_RECEIVING_EMAIL
-    const resendApiKey = process.env.RESEND_API_KEY
+    const receivingEmail =
+      process.env.OPTIMUS_RECEIVING_EMAIL
+
+    const resendApiKey =
+      process.env.RESEND_API_KEY
 
     if (resendApiKey && receivingEmail) {
-      const response = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${resendApiKey}`,
-        },
-        body: JSON.stringify({
-          from: "Optimus Solutions <onboarding@resend.dev>",
-          to: receivingEmail,
-          subject: emailSubject,
-          text: emailBody,
-          reply_to: email,
-        }),
-      })
+      const response = await fetch(
+        "https://api.resend.com/emails",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${resendApiKey}`,
+          },
+          body: JSON.stringify({
+            from:
+              "Optimus Solutions <onboarding@resend.dev>",
+            to: receivingEmail,
+            subject: emailSubject,
+            text: emailBody,
+            reply_to: email,
+          }),
+        }
+      )
 
       if (!response.ok) {
         const errorText = await response.text()
 
-        console.error("Resend API error:", errorText)
+        console.error(
+          "Resend API error:",
+          errorText
+        )
 
-        // Important:
-        // The documents have already been uploaded successfully.
-        // We log the application so it isn't silently lost.
-        console.log("=== APPLICATION DATA (Email failed) ===")
-        console.log("Application ID:", applicationId)
-        console.log("Data:", {
-          fullName,
-          idNumber,
-          phoneNumber,
-          email,
-          loanAmount,
-          employmentStatus,
-          monthlyIncome,
-          notes,
-          documentUrls,
-        })
-        console.log("========================================")
+        console.log(
+          "Application was uploaded but email failed:",
+          applicationId
+        )
       } else {
         console.log(
           `Email sent successfully for application ${applicationId}`
         )
       }
     } else {
-      console.log("=== NEW LOAN APPLICATION ===")
-      console.log("Application ID:", applicationId)
-      console.log("Email Body:", emailBody)
-      console.log("============================")
       console.log(
-        "Note: Configure OPTIMUS_RECEIVING_EMAIL and RESEND_API_KEY to enable email notifications."
+        "RESEND_API_KEY or OPTIMUS_RECEIVING_EMAIL is missing."
       )
     }
 
@@ -374,11 +369,15 @@ Trade Number: 2025/17469107
 
     return {
       success: true,
-      message: "Your application has been submitted successfully.",
+      message:
+        "Your application has been submitted successfully.",
       applicationId,
     }
   } catch (error) {
-    console.error("Application submission error:", error)
+    console.error(
+      "Application submission error:",
+      error
+    )
 
     return {
       success: false,
