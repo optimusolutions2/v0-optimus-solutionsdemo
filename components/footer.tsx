@@ -6,12 +6,14 @@ export function Footer() {
     <footer className="bg-[#012a4a] text-white" id="contact">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-8 md:grid-cols-3">
+
           {/* Company Info */}
           <div>
             <div className="flex items-center gap-2">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10">
                 <span className="text-xl font-bold text-white">O</span>
               </div>
+
               <span className="text-lg font-semibold">
                 Optimus Solutions
               </span>
@@ -109,7 +111,7 @@ export function Footer() {
             <ul className="mt-4 space-y-2">
               <li>
                 <Link
-                  href="#"
+                  href="/privacy"
                   className="text-sm text-white/70 transition-colors hover:text-white"
                 >
                   Privacy Policy
@@ -118,7 +120,7 @@ export function Footer() {
 
               <li>
                 <Link
-                  href="#"
+                  href="/terms"
                   className="text-sm text-white/70 transition-colors hover:text-white"
                 >
                   Terms of Service
@@ -145,7 +147,10 @@ export function Footer() {
 
           <p className="mt-2 text-sm text-white/50">
             Trade No: 2025/17469107 | Registered Credit Provider |
-            NCR Registration No. <span className="font-semibold">NCRCP23929</span>
+            NCR Registration No.{" "}
+            <span className="font-semibold">
+              NCRCP23929
+            </span>
           </p>
         </div>
       </div>
