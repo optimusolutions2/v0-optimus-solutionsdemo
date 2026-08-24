@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { upload } from "@vercel/blob/client"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -10,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+
 import {
   CheckCircle,
   Loader2,
@@ -18,7 +21,12 @@ import {
   Upload,
   FileText,
 } from "lucide-react"
+
 import { submitApplication } from "@/app/actions/submit-application"
+
+// ---------------------------------------------------------
+// Constants
+// ---------------------------------------------------------
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB per file
 const MAX_TOTAL_SIZE = 28 * 1024 * 1024 // 28MB total
@@ -28,6 +36,10 @@ const ALLOWED_FILE_TYPES = [
   "image/jpeg",
   "image/png",
 ]
+
+// ---------------------------------------------------------
+// Document types
+// ---------------------------------------------------------
 
 interface DocumentFiles {
   idFront: File | null
@@ -44,6 +56,10 @@ const initialDocuments: DocumentFiles = {
   proofOfAddress: null,
   payslips: null,
 }
+
+// ---------------------------------------------------------
+// Form data
+// ---------------------------------------------------------
 
 export interface LoanApplicationData {
   fullName: string
@@ -71,9 +87,17 @@ const initialFormData: LoanApplicationData = {
   consentToProcess: false,
 }
 
+// ---------------------------------------------------------
+// Error types
+// ---------------------------------------------------------
+
 type FormErrorKey =
   | keyof LoanApplicationData
   | keyof DocumentFiles
+
+// ---------------------------------------------------------
+// Component
+// ---------------------------------------------------------
 
 export function ApplicationForm() {
   const [formData, setFormData] =
@@ -86,13 +110,26 @@ export function ApplicationForm() {
     Partial<Record<FormErrorKey, string>>
   >({})
 
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isSubmitted, setIsSubmitted] = useState(false)
-  const [submitError, setSubmitError] = useState<string | null>(null)
-  const [applicationId, setApplicationId] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] =
+    useState(false)
+
+  const [uploadingDocument, setUploadingDocument] =
+    useState<string | null>(null)
+
+  const [uploadProgress, setUploadProgress] =
+    useState(0)
+
+  const [isSubmitted, setIsSubmitted] =
+    useState(false)
+
+  const [submitError, setSubmitError] =
+    useState<string | null>(null)
+
+  const [applicationId, setApplicationId] =
+    useState<string | null>(null)
 
   // ---------------------------------------------------------
-  // File size formatting
+  // Format file size
   // ---------------------------------------------------------
 
   const formatFileSize = (bytes: number) => {
@@ -100,11 +137,14 @@ export function ApplicationForm() {
       return `${Math.round(bytes / 1024)} KB`
     }
 
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+    return `${(
+      bytes /
+      (1024 * 1024)
+    ).toFixed(1)} MB`
   }
 
   // ---------------------------------------------------------
-  // File upload
+  // File upload validation
   // ---------------------------------------------------------
 
   const handleFileChange = (
@@ -117,6 +157,8 @@ export function ApplicationForm() {
       return
     }
 
+    // Validate type
+
     if (!ALLOWED_FILE_TYPES.includes(file.type)) {
       setErrors((prev) => ({
         ...prev,
@@ -127,6 +169,8 @@ export function ApplicationForm() {
       e.target.value = ""
       return
     }
+
+    // Validate individual file size
 
     if (file.size > MAX_FILE_SIZE) {
       setErrors((prev) => ({
@@ -139,22 +183,55 @@ export function ApplicationForm() {
       return
     }
 
+    // Calculate total size with new file
+
+    const totalSize = Object.entries(
+      documents
+    ).reduce((total, [key, existingFile]) => {
+      if (key === field) {
+        return total + file.size
+      }
+
+      return total + (existingFile?.size || 0)
+    }, 0)
+
+    if (totalSize > MAX_TOTAL_SIZE) {
+      setErrors((prev) => ({
+        ...prev,
+        [field]:
+          "The combined size of your documents cannot exceed 28MB.",
+      }))
+
+      e.target.value = ""
+      return
+    }
+
+    // Store file
+
     setDocuments((prev) => ({
       ...prev,
       [field]: file,
     }))
 
+    // Clear error
+
     setErrors((prev) => ({
       ...prev,
       [field]: undefined,
     }))
+
+    setSubmitError(null)
+
+    e.target.value = ""
   }
 
   // ---------------------------------------------------------
-  // Remove uploaded file
+  // Remove file
   // ---------------------------------------------------------
 
-  const removeFile = (field: keyof DocumentFiles) => {
+  const removeFile = (
+    field: keyof DocumentFiles
+  ) => {
     setDocuments((prev) => ({
       ...prev,
       [field]: null,
@@ -164,21 +241,29 @@ export function ApplicationForm() {
       ...prev,
       [field]: undefined,
     }))
+
+    setSubmitError(null)
   }
 
   // ---------------------------------------------------------
-  // Check if form is complete
+  // Check whether form is complete
   // ---------------------------------------------------------
+
+  const cleanIdNumber =
+    formData.idNumber.replace(/\s/g, "")
+
+  const cleanPhoneNumber =
+    formData.phoneNumber.replace(/\s/g, "")
 
   const isFormComplete =
     formData.fullName.trim() !== "" &&
-    /^\d{13}$/.test(
-      formData.idNumber.replace(/\s/g, "")
-    ) &&
+    /^\d{13}$/.test(cleanIdNumber) &&
     /^(\+27|0)[0-9]{9}$/.test(
-      formData.phoneNumber.replace(/\s/g, "")
+      cleanPhoneNumber
     ) &&
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+      formData.email.trim()
+    ) &&
     formData.loanAmount.trim() !== "" &&
     Number(formData.loanAmount) > 0 &&
     formData.employmentStatus.trim() !== "" &&
@@ -193,7 +278,7 @@ export function ApplicationForm() {
     formData.consentToProcess
 
   // ---------------------------------------------------------
-  // Validate form
+  // Validate entire form
   // ---------------------------------------------------------
 
   const validateForm = (): boolean => {
@@ -201,19 +286,27 @@ export function ApplicationForm() {
       Record<FormErrorKey, string>
     > = {}
 
+    // Full name
+
     if (!formData.fullName.trim()) {
-      newErrors.fullName = "Full name is required."
+      newErrors.fullName =
+        "Full name is required."
     }
 
-    const cleanIdNumber =
+    // ID number
+
+    const cleanId =
       formData.idNumber.replace(/\s/g, "")
 
-    if (!cleanIdNumber) {
-      newErrors.idNumber = "ID number is required."
-    } else if (!/^\d{13}$/.test(cleanIdNumber)) {
+    if (!cleanId) {
+      newErrors.idNumber =
+        "ID number is required."
+    } else if (!/^\d{13}$/.test(cleanId)) {
       newErrors.idNumber =
         "Your South African ID number must contain exactly 13 digits."
     }
+
+    // Phone
 
     const cleanPhone =
       formData.phoneNumber.replace(/\s/g, "")
@@ -221,42 +314,61 @@ export function ApplicationForm() {
     if (!cleanPhone) {
       newErrors.phoneNumber =
         "Phone number is required."
-    } else if (!/^(\+27|0)[0-9]{9}$/.test(cleanPhone)) {
+    } else if (
+      !/^(\+27|0)[0-9]{9}$/.test(
+        cleanPhone
+      )
+    ) {
       newErrors.phoneNumber =
         "Please enter a valid South African phone number."
     }
 
+    // Email
+
     if (!formData.email.trim()) {
-      newErrors.email = "Email address is required."
+      newErrors.email =
+        "Email address is required."
     } else if (
       !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-        formData.email
+        formData.email.trim()
       )
     ) {
       newErrors.email =
         "Please enter a valid email address."
     }
 
+    // Loan amount
+
     if (!formData.loanAmount.trim()) {
       newErrors.loanAmount =
         "Loan amount is required."
-    } else if (Number(formData.loanAmount) <= 0) {
+    } else if (
+      Number(formData.loanAmount) <= 0
+    ) {
       newErrors.loanAmount =
         "Please enter a valid loan amount."
     }
+
+    // Employment
 
     if (!formData.employmentStatus.trim()) {
       newErrors.employmentStatus =
         "Employment status is required."
     }
 
+    // Income
+
     if (!formData.monthlyIncome.trim()) {
       newErrors.monthlyIncome =
         "Monthly income is required."
-    } else if (Number(formData.monthlyIncome) <= 0) {
+    } else if (
+      Number(formData.monthlyIncome) <= 0
+    ) {
       newErrors.monthlyIncome =
         "Please enter a valid monthly income."
     }
+
+    // Documents
 
     if (!documents.idFront) {
       newErrors.idFront =
@@ -283,21 +395,28 @@ export function ApplicationForm() {
         "3 months payslips are required."
     }
 
-    const totalSize = Object.values(documents).reduce(
-      (total, file) =>
-        total + (file?.size || 0),
-      0
-    )
+    // Total document size
+
+    const totalSize =
+      Object.values(documents).reduce(
+        (total, file) =>
+          total + (file?.size || 0),
+        0
+      )
 
     if (totalSize > MAX_TOTAL_SIZE) {
       newErrors.bankStatement =
-        "The combined size of your documents is too large. Maximum total size is 28MB."
+        "The combined size of your documents cannot exceed 28MB."
     }
+
+    // Confirmation
 
     if (!formData.confirmAccurate) {
       newErrors.confirmAccurate =
         "You must confirm that the information is accurate."
     }
+
+    // Consent
 
     if (!formData.consentToProcess) {
       newErrors.consentToProcess =
@@ -306,11 +425,13 @@ export function ApplicationForm() {
 
     setErrors(newErrors)
 
-    return Object.keys(newErrors).length === 0
+    return (
+      Object.keys(newErrors).length === 0
+    )
   }
 
   // ---------------------------------------------------------
-  // Submit
+  // Submit application
   // ---------------------------------------------------------
 
   const handleSubmit = async (
@@ -320,113 +441,235 @@ export function ApplicationForm() {
 
     setSubmitError(null)
 
+    // Always validate again before submission
+
     if (!validateForm()) {
+      return
+    }
+
+    if (!isFormComplete) {
+      setSubmitError(
+        "Please complete all required fields, upload all required documents, and accept both confirmations."
+      )
+
       return
     }
 
     setIsSubmitting(true)
 
     try {
-      const submission = new FormData()
+      // -----------------------------------------------------
+      // Generate application ID
+      // -----------------------------------------------------
 
-      // Application data
+      const newApplicationId =
+        `OPT-${Date.now()}-${Math.random()
+          .toString(36)
+          .substring(2, 7)
+          .toUpperCase()}`
+
+      // -----------------------------------------------------
+      // Documents to upload
+      // -----------------------------------------------------
+
+      const documentFields: (
+        keyof DocumentFiles
+      )[] = [
+        "idFront",
+        "idBack",
+        "bankStatement",
+        "proofOfAddress",
+        "payslips",
+      ]
+
+      const documentUrls: Partial<
+        Record<
+          keyof DocumentFiles,
+          string
+        >
+      > = {}
+
+      // -----------------------------------------------------
+      // Upload documents directly to Vercel Blob
+      // -----------------------------------------------------
+
+      for (
+        const field of documentFields
+      ) {
+        const file = documents[field]
+
+        if (!file) {
+          throw new Error(
+            `Please upload the required document: ${field}.`
+          )
+        }
+
+        setUploadingDocument(field)
+        setUploadProgress(0)
+
+        const extension =
+          file.name
+            .split(".")
+            .pop()
+            ?.toLowerCase() || "file"
+
+        const pathname =
+          `applications/${newApplicationId}/${field}-${Date.now()}.${extension}`
+
+        const blob = await upload(
+          pathname,
+          file,
+          {
+            access: "public",
+
+            handleUploadUrl:
+              "/api/upload",
+
+            multipart: true,
+
+            clientPayload:
+              JSON.stringify({
+                applicationId:
+                  newApplicationId,
+                documentType: field,
+              }),
+
+            onUploadProgress: ({
+              percentage,
+            }) => {
+              setUploadProgress(
+                Math.round(percentage)
+              )
+            },
+          }
+        )
+
+        documentUrls[field] =
+          blob.url
+      }
+
+      // Upload complete
+
+      setUploadingDocument(null)
+      setUploadProgress(100)
+
+      // -----------------------------------------------------
+      // Prepare lightweight server submission
+      // -----------------------------------------------------
+
+      const submission =
+        new FormData()
+
+      submission.append(
+        "applicationId",
+        newApplicationId
+      )
+
       submission.append(
         "fullName",
-        formData.fullName
+        formData.fullName.trim()
       )
 
       submission.append(
         "idNumber",
-        formData.idNumber
+        formData.idNumber.trim()
       )
 
       submission.append(
         "phoneNumber",
-        formData.phoneNumber
+        formData.phoneNumber.trim()
       )
 
       submission.append(
         "email",
-        formData.email
+        formData.email.trim()
       )
 
       submission.append(
         "loanAmount",
-        formData.loanAmount
+        formData.loanAmount.trim()
       )
 
       submission.append(
         "employmentStatus",
-        formData.employmentStatus
+        formData.employmentStatus.trim()
       )
 
       submission.append(
         "monthlyIncome",
-        formData.monthlyIncome
+        formData.monthlyIncome.trim()
       )
 
       submission.append(
         "notes",
-        formData.notes
+        formData.notes.trim()
       )
 
       submission.append(
         "confirmAccurate",
-        String(formData.confirmAccurate)
+        String(
+          formData.confirmAccurate
+        )
       )
 
       submission.append(
         "consentToProcess",
-        String(formData.consentToProcess)
+        String(
+          formData.consentToProcess
+        )
       )
 
-      // Documents
-      if (documents.idFront) {
-        submission.append(
-          "idFront",
-          documents.idFront
-        )
-      }
+      // -----------------------------------------------------
+      // Add document URLs
+      // -----------------------------------------------------
 
-      if (documents.idBack) {
-        submission.append(
-          "idBack",
-          documents.idBack
-        )
-      }
+      submission.append(
+        "idFront",
+        documentUrls.idFront || ""
+      )
 
-      if (documents.bankStatement) {
-        submission.append(
-          "bankStatement",
-          documents.bankStatement
-        )
-      }
+      submission.append(
+        "idBack",
+        documentUrls.idBack || ""
+      )
 
-      if (documents.proofOfAddress) {
-        submission.append(
-          "proofOfAddress",
-          documents.proofOfAddress
-        )
-      }
+      submission.append(
+        "bankStatement",
+        documentUrls.bankStatement ||
+          ""
+      )
 
-      if (documents.payslips) {
-        submission.append(
-          "payslips",
-          documents.payslips
-        )
-      }
+      submission.append(
+        "proofOfAddress",
+        documentUrls.proofOfAddress ||
+          ""
+      )
+
+      submission.append(
+        "payslips",
+        documentUrls.payslips || ""
+      )
+
+      // -----------------------------------------------------
+      // Call server action
+      // -----------------------------------------------------
 
       const result =
-        await submitApplication(submission)
+        await submitApplication(
+          submission
+        )
 
       if (result.success) {
         setApplicationId(
-          result.applicationId || null
+          result.applicationId ||
+            newApplicationId
         )
 
         setIsSubmitted(true)
       } else {
-        setSubmitError(result.message)
+        setSubmitError(
+          result.message
+        )
       }
     } catch (error) {
       console.error(
@@ -435,10 +678,13 @@ export function ApplicationForm() {
       )
 
       setSubmitError(
-        "An unexpected error occurred. Please try again."
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred. Please try again."
       )
     } finally {
       setIsSubmitting(false)
+      setUploadingDocument(null)
     }
   }
 
@@ -460,15 +706,20 @@ export function ApplicationForm() {
     } = e.target
 
     const checked =
-      (e.target as HTMLInputElement).checked
+      (e.target as HTMLInputElement)
+        .checked
 
     // -------------------------------------------------------
-    // ID number — digits only, maximum 13
+    // ID number
+    // Digits only
+    // Maximum 13 digits
     // -------------------------------------------------------
 
     if (name === "idNumber") {
       const digitsOnly =
-        value.replace(/\D/g, "").slice(0, 13)
+        value
+          .replace(/\D/g, "")
+          .slice(0, 13)
 
       setFormData((prev) => ({
         ...prev,
@@ -485,6 +736,10 @@ export function ApplicationForm() {
       return
     }
 
+    // -------------------------------------------------------
+    // Normal inputs
+    // -------------------------------------------------------
+
     setFormData((prev) => ({
       ...prev,
       [name]:
@@ -493,12 +748,16 @@ export function ApplicationForm() {
           : value,
     }))
 
-    if (errors[name as FormErrorKey]) {
+    if (
+      errors[name as FormErrorKey]
+    ) {
       setErrors((prev) => ({
         ...prev,
         [name]: undefined,
       }))
     }
+
+    setSubmitError(null)
   }
 
   // ---------------------------------------------------------
@@ -517,10 +776,14 @@ export function ApplicationForm() {
     const file = documents[field]
     const error = errors[field]
 
+    const isUploading =
+      uploadingDocument === field
+
     return (
       <div className="space-y-2">
         <label className="block text-sm font-medium text-foreground">
           {label}
+
           <span className="ml-1 text-destructive">
             *
           </span>
@@ -531,31 +794,60 @@ export function ApplicationForm() {
         </p>
 
         {file ? (
-          <div className="flex items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white">
-              <FileText className="h-5 w-5 text-[#012a4a]" />
+          <div className="rounded-lg border border-green-200 bg-green-50 p-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white">
+                <FileText className="h-5 w-5 text-[#012a4a]" />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-foreground">
+                  {file.name}
+                </p>
+
+                <p className="text-xs text-muted-foreground">
+                  {formatFileSize(
+                    file.size
+                  )}
+                </p>
+              </div>
+
+              {!isSubmitting && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    removeFile(field)
+                  }
+                  className="rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-white hover:text-destructive"
+                  aria-label={`Remove ${label}`}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </div>
 
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-foreground">
-                {file.name}
-              </p>
+            {isUploading && (
+              <div className="mt-3">
+                <div className="mb-1 flex items-center justify-between text-xs text-muted-foreground">
+                  <span>
+                    Uploading...
+                  </span>
 
-              <p className="text-xs text-muted-foreground">
-                {formatFileSize(file.size)}
-              </p>
-            </div>
+                  <span>
+                    {uploadProgress}%
+                  </span>
+                </div>
 
-            <button
-              type="button"
-              onClick={() =>
-                removeFile(field)
-              }
-              className="rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-white hover:text-destructive"
-              aria-label={`Remove ${label}`}
-            >
-              <X className="h-4 w-4" />
-            </button>
+                <div className="h-2 overflow-hidden rounded-full bg-white">
+                  <div
+                    className="h-full rounded-full bg-[#012a4a] transition-all duration-200"
+                    style={{
+                      width: `${uploadProgress}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <label
@@ -563,6 +855,10 @@ export function ApplicationForm() {
               error
                 ? "border-destructive bg-destructive/5"
                 : "border-border"
+            } ${
+              isSubmitting
+                ? "pointer-events-none opacity-60"
+                : ""
             }`}
           >
             <Upload className="mb-2 h-6 w-6 text-muted-foreground" />
@@ -579,6 +875,7 @@ export function ApplicationForm() {
               type="file"
               accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
               className="hidden"
+              disabled={isSubmitting}
               onChange={(e) =>
                 handleFileChange(
                   e,
@@ -646,8 +943,10 @@ export function ApplicationForm() {
           }`}
         >
           <button
+            type="button"
             onClick={handleClose}
             className="absolute right-4 top-4 rounded-full p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            aria-label="Close"
           >
             <X className="h-5 w-5" />
           </button>
@@ -671,19 +970,21 @@ export function ApplicationForm() {
             )}
 
             <p className="mb-3 leading-relaxed text-muted-foreground">
-              Thank you. Your application has been
-              received and is currently under review.
-              You can expect a response within
+              Thank you. Your application
+              has been received and is
+              currently under review. You
+              can expect a response within
               24–48 hours.
             </p>
 
             <p className="mb-8 text-sm text-muted-foreground/80">
-              A consultant may contact you to complete
-              the next steps.
+              A consultant may contact you
+              to complete the next steps.
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Button
+                type="button"
                 variant="outline"
                 onClick={handleClose}
                 className="order-2 sm:order-1"
@@ -751,6 +1052,10 @@ export function ApplicationForm() {
           onSubmit={handleSubmit}
           className="space-y-6"
         >
+          {/* ------------------------------------------------ */}
+          {/* Submission error */}
+          {/* ------------------------------------------------ */}
+
           {submitError && (
             <div className="flex items-start gap-3 rounded-lg border border-destructive/50 bg-destructive/10 p-4">
               <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
@@ -767,7 +1072,9 @@ export function ApplicationForm() {
             </div>
           )}
 
+          {/* ------------------------------------------------ */}
           {/* Personal Information */}
+          {/* ------------------------------------------------ */}
 
           <div className="space-y-4">
             <h4 className="text-sm font-medium text-muted-foreground">
@@ -775,6 +1082,8 @@ export function ApplicationForm() {
             </h4>
 
             <div className="grid gap-4 sm:grid-cols-2">
+              {/* Full name */}
+
               <div>
                 <label
                   htmlFor="fullName"
@@ -786,8 +1095,12 @@ export function ApplicationForm() {
                 <Input
                   id="fullName"
                   name="fullName"
-                  value={formData.fullName}
-                  onChange={handleChange}
+                  value={
+                    formData.fullName
+                  }
+                  onChange={
+                    handleChange
+                  }
                   placeholder="Enter your full name"
                   className={
                     errors.fullName
@@ -803,6 +1116,8 @@ export function ApplicationForm() {
                 )}
               </div>
 
+              {/* ID number */}
+
               <div>
                 <label
                   htmlFor="idNumber"
@@ -816,8 +1131,12 @@ export function ApplicationForm() {
                   name="idNumber"
                   inputMode="numeric"
                   maxLength={13}
-                  value={formData.idNumber}
-                  onChange={handleChange}
+                  value={
+                    formData.idNumber
+                  }
+                  onChange={
+                    handleChange
+                  }
                   placeholder="13-digit SA ID number"
                   className={
                     errors.idNumber
@@ -839,7 +1158,9 @@ export function ApplicationForm() {
             </div>
           </div>
 
+          {/* ------------------------------------------------ */}
           {/* Contact Information */}
+          {/* ------------------------------------------------ */}
 
           <div className="space-y-4">
             <h4 className="text-sm font-medium text-muted-foreground">
@@ -847,6 +1168,8 @@ export function ApplicationForm() {
             </h4>
 
             <div className="grid gap-4 sm:grid-cols-2">
+              {/* Phone */}
+
               <div>
                 <label
                   htmlFor="phoneNumber"
@@ -859,8 +1182,12 @@ export function ApplicationForm() {
                   id="phoneNumber"
                   name="phoneNumber"
                   inputMode="tel"
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
+                  value={
+                    formData.phoneNumber
+                  }
+                  onChange={
+                    handleChange
+                  }
                   placeholder="e.g., 0821234567"
                   className={
                     errors.phoneNumber
@@ -871,10 +1198,14 @@ export function ApplicationForm() {
 
                 {errors.phoneNumber && (
                   <p className="mt-1 text-sm text-destructive">
-                    {errors.phoneNumber}
+                    {
+                      errors.phoneNumber
+                    }
                   </p>
                 )}
               </div>
+
+              {/* Email */}
 
               <div>
                 <label
@@ -888,8 +1219,12 @@ export function ApplicationForm() {
                   id="email"
                   name="email"
                   type="email"
-                  value={formData.email}
-                  onChange={handleChange}
+                  value={
+                    formData.email
+                  }
+                  onChange={
+                    handleChange
+                  }
                   placeholder="your@email.com"
                   className={
                     errors.email
@@ -907,7 +1242,9 @@ export function ApplicationForm() {
             </div>
           </div>
 
+          {/* ------------------------------------------------ */}
           {/* Loan Details */}
+          {/* ------------------------------------------------ */}
 
           <div className="space-y-4">
             <h4 className="text-sm font-medium text-muted-foreground">
@@ -927,8 +1264,12 @@ export function ApplicationForm() {
                 name="loanAmount"
                 type="number"
                 min="1"
-                value={formData.loanAmount}
-                onChange={handleChange}
+                value={
+                  formData.loanAmount
+                }
+                onChange={
+                  handleChange
+                }
                 placeholder="e.g., 10000"
                 className={
                   errors.loanAmount
@@ -945,7 +1286,9 @@ export function ApplicationForm() {
             </div>
           </div>
 
+          {/* ------------------------------------------------ */}
           {/* Employment Information */}
+          {/* ------------------------------------------------ */}
 
           <div className="space-y-4">
             <h4 className="text-sm font-medium text-muted-foreground">
@@ -953,6 +1296,8 @@ export function ApplicationForm() {
             </h4>
 
             <div className="grid gap-4 sm:grid-cols-2">
+              {/* Employment */}
+
               <div>
                 <label
                   htmlFor="employmentStatus"
@@ -964,8 +1309,12 @@ export function ApplicationForm() {
                 <select
                   id="employmentStatus"
                   name="employmentStatus"
-                  value={formData.employmentStatus}
-                  onChange={handleChange}
+                  value={
+                    formData.employmentStatus
+                  }
+                  onChange={
+                    handleChange
+                  }
                   className={`flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
                     errors.employmentStatus
                       ? "border-destructive"
@@ -995,10 +1344,14 @@ export function ApplicationForm() {
 
                 {errors.employmentStatus && (
                   <p className="mt-1 text-sm text-destructive">
-                    {errors.employmentStatus}
+                    {
+                      errors.employmentStatus
+                    }
                   </p>
                 )}
               </div>
+
+              {/* Monthly income */}
 
               <div>
                 <label
@@ -1013,8 +1366,12 @@ export function ApplicationForm() {
                   name="monthlyIncome"
                   type="number"
                   min="1"
-                  value={formData.monthlyIncome}
-                  onChange={handleChange}
+                  value={
+                    formData.monthlyIncome
+                  }
+                  onChange={
+                    handleChange
+                  }
                   placeholder="e.g., 15000"
                   className={
                     errors.monthlyIncome
@@ -1025,14 +1382,18 @@ export function ApplicationForm() {
 
                 {errors.monthlyIncome && (
                   <p className="mt-1 text-sm text-destructive">
-                    {errors.monthlyIncome}
+                    {
+                      errors.monthlyIncome
+                    }
                   </p>
                 )}
               </div>
             </div>
           </div>
 
+          {/* ------------------------------------------------ */}
           {/* Required Documents */}
+          {/* ------------------------------------------------ */}
 
           <div className="space-y-5 rounded-xl border border-border bg-muted/20 p-5">
             <div>
@@ -1041,8 +1402,10 @@ export function ApplicationForm() {
               </h4>
 
               <p className="mt-1 text-sm text-muted-foreground">
-                Please provide all documents below.
-                Each file must be no larger than 10MB.
+                Please provide all documents
+                below. Each file must be no
+                larger than 10MB. Combined
+                documents cannot exceed 28MB.
               </p>
             </div>
 
@@ -1079,7 +1442,9 @@ export function ApplicationForm() {
             </div>
           </div>
 
+          {/* ------------------------------------------------ */}
           {/* Additional Notes */}
+          {/* ------------------------------------------------ */}
 
           <div>
             <label
@@ -1092,23 +1457,33 @@ export function ApplicationForm() {
             <textarea
               id="notes"
               name="notes"
-              value={formData.notes}
-              onChange={handleChange}
+              value={
+                formData.notes
+              }
+              onChange={
+                handleChange
+              }
               rows={3}
               placeholder="Any additional information you'd like to share..."
               className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             />
           </div>
 
-          {/* Confirmation */}
+          {/* ------------------------------------------------ */}
+          {/* Accuracy confirmation */}
+          {/* ------------------------------------------------ */}
 
           <div className="flex items-start gap-3">
             <input
               type="checkbox"
               id="confirmAccurate"
               name="confirmAccurate"
-              checked={formData.confirmAccurate}
-              onChange={handleChange}
+              checked={
+                formData.confirmAccurate
+              }
+              onChange={
+                handleChange
+              }
               className="mt-1 h-4 w-4 rounded border-input text-primary focus:ring-ring"
             />
 
@@ -1116,20 +1491,26 @@ export function ApplicationForm() {
               htmlFor="confirmAccurate"
               className="text-sm text-muted-foreground"
             >
-              I confirm that the information provided
-              is accurate and complete. I understand that
-              providing false information may result in
-              my application being rejected.
+              I confirm that the information
+              provided is accurate and
+              complete. I understand that
+              providing false information may
+              result in my application being
+              rejected.
             </label>
           </div>
 
           {errors.confirmAccurate && (
             <p className="-mt-4 text-sm text-destructive">
-              {errors.confirmAccurate}
+              {
+                errors.confirmAccurate
+              }
             </p>
           )}
 
-          {/* Data Processing Consent */}
+          {/* ------------------------------------------------ */}
+          {/* Data processing consent */}
+          {/* ------------------------------------------------ */}
 
           <div className="rounded-lg border border-border bg-muted/30 p-4">
             <div className="flex items-start gap-3">
@@ -1137,8 +1518,12 @@ export function ApplicationForm() {
                 type="checkbox"
                 id="consentToProcess"
                 name="consentToProcess"
-                checked={formData.consentToProcess}
-                onChange={handleChange}
+                checked={
+                  formData.consentToProcess
+                }
+                onChange={
+                  handleChange
+                }
                 className="mt-1 h-4 w-4 rounded border-input text-primary focus:ring-ring"
               />
 
@@ -1147,30 +1532,64 @@ export function ApplicationForm() {
                   htmlFor="consentToProcess"
                   className="text-sm leading-relaxed text-foreground"
                 >
-                  I understand and agree that the
-                  information I provide may be used for
-                  application assessment, verification,
-                  and, if approved, for debit order
+                  I understand and agree that
+                  the information I provide may
+                  be used for application
+                  assessment, verification, and,
+                  if approved, for debit order
                   processing and related payment
                   administration.
                 </label>
 
                 <p className="mt-2 text-xs text-muted-foreground">
-                  This acknowledgement does not replace
-                  any formal debit order or bank mandate
-                  that may be required after approval.
+                  This acknowledgement does
+                  not replace any formal debit
+                  order or bank mandate that may
+                  be required after approval.
                 </p>
               </div>
             </div>
 
             {errors.consentToProcess && (
               <p className="mt-2 text-sm text-destructive">
-                {errors.consentToProcess}
+                {
+                  errors.consentToProcess
+                }
               </p>
             )}
           </div>
 
-          {/* Submit Button */}
+          {/* ------------------------------------------------ */}
+          {/* Upload status */}
+          {/* ------------------------------------------------ */}
+
+          {isSubmitting &&
+            uploadingDocument && (
+              <div className="rounded-lg border border-[#012a4a]/20 bg-[#012a4a]/5 p-4">
+                <div className="flex items-center gap-3">
+                  <Loader2 className="h-5 w-5 animate-spin text-[#012a4a]" />
+
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-foreground">
+                      Uploading your documents...
+                    </p>
+
+                    <p className="text-xs text-muted-foreground">
+                      Please don't close this
+                      page.
+                    </p>
+                  </div>
+
+                  <span className="text-sm font-medium text-[#012a4a]">
+                    {uploadProgress}%
+                  </span>
+                </div>
+              </div>
+            )}
+
+          {/* ------------------------------------------------ */}
+          {/* Submit button */}
+          {/* ------------------------------------------------ */}
 
           <Button
             type="submit"
@@ -1179,7 +1598,8 @@ export function ApplicationForm() {
               !isFormComplete
             }
             className={`w-full text-white ${
-              isFormComplete && !isSubmitting
+              isFormComplete &&
+              !isSubmitting
                 ? "bg-[#012a4a] hover:bg-[#013a63]"
                 : "cursor-not-allowed bg-gray-400"
             }`}
@@ -1188,19 +1608,27 @@ export function ApplicationForm() {
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Submitting Application...
+
+                {uploadingDocument
+                  ? "Uploading Documents..."
+                  : "Submitting Application..."}
               </>
             ) : (
               "Apply Now"
             )}
           </Button>
 
+          {/* ------------------------------------------------ */}
+          {/* Incomplete message */}
+          {/* ------------------------------------------------ */}
+
           {!isFormComplete &&
             !isSubmitting && (
               <p className="text-center text-xs text-muted-foreground">
-                Please complete all required fields,
-                upload all required documents, and
-                accept both confirmations before
+                Please complete all required
+                fields, upload all required
+                documents, and accept both
+                confirmations before
                 submitting.
               </p>
             )}
