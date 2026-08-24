@@ -1,17 +1,42 @@
 "use server"
 
+import { put } from "@vercel/blob"
+
 export interface SubmitApplicationResult {
   success: boolean
   message: string
   applicationId?: string
 }
 
-interface ApplicationDocumentUrls {
-  idFront: string
-  idBack: string
-  bankStatement: string
-  proofOfAddress: string
-  payslips: string
+const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
+const MAX_TOTAL_SIZE = 28 * 1024 * 1024 // 28MB
+
+const ALLOWED_FILE_TYPES = [
+  "application/pdf",
+  "image/jpeg",
+  "image/png",
+]
+
+const DOCUMENT_FIELDS = [
+  "idFront",
+  "idBack",
+  "bankStatement",
+  "proofOfAddress",
+  "payslips",
+] as const
+
+type DocumentField =
+  (typeof DOCUMENT_FIELDS)[number]
+
+const DOCUMENT_NAMES: Record<
+  DocumentField,
+  string
+> = {
+  idFront: "ID Front",
+  idBack: "ID Back",
+  bankStatement: "3 Months Bank Statement",
+  proofOfAddress: "Proof of Address",
+  payslips: "3 Months Payslips",
 }
 
 export async function submitApplication(
@@ -55,37 +80,17 @@ export async function submitApplication(
     ).trim()
 
     const confirmAccurate =
-      String(formData.get("confirmAccurate")) === "true"
+      String(
+        formData.get("confirmAccurate")
+      ) === "true"
 
     const consentToProcess =
-      String(formData.get("consentToProcess")) === "true"
+      String(
+        formData.get("consentToProcess")
+      ) === "true"
 
     // ---------------------------------------------------------
-    // 2. Read document URLs
-    // ---------------------------------------------------------
-
-    const idFront = String(
-      formData.get("idFront") || ""
-    ).trim()
-
-    const idBack = String(
-      formData.get("idBack") || ""
-    ).trim()
-
-    const bankStatement = String(
-      formData.get("bankStatement") || ""
-    ).trim()
-
-    const proofOfAddress = String(
-      formData.get("proofOfAddress") || ""
-    ).trim()
-
-    const payslips = String(
-      formData.get("payslips") || ""
-    ).trim()
-
-    // ---------------------------------------------------------
-    // 3. Required information validation
+    // 2. Required field validation
     // ---------------------------------------------------------
 
     if (
@@ -99,15 +104,17 @@ export async function submitApplication(
     ) {
       return {
         success: false,
-        message: "Please complete all required fields.",
+        message:
+          "Please complete all required fields.",
       }
     }
 
     // ---------------------------------------------------------
-    // 4. South African ID validation
+    // 3. South African ID validation
     // ---------------------------------------------------------
 
-    const cleanIdNumber = idNumber.replace(/\s/g, "")
+    const cleanIdNumber =
+      idNumber.replace(/\s/g, "")
 
     if (!/^\d{13}$/.test(cleanIdNumber)) {
       return {
@@ -118,12 +125,17 @@ export async function submitApplication(
     }
 
     // ---------------------------------------------------------
-    // 5. Phone validation
+    // 4. Phone validation
     // ---------------------------------------------------------
 
-    const cleanPhone = phoneNumber.replace(/\s/g, "")
+    const cleanPhone =
+      phoneNumber.replace(/\s/g, "")
 
-    if (!/^(\+27|0)[0-9]{9}$/.test(cleanPhone)) {
+    if (
+      !/^(\+27|0)[0-9]{9}$/.test(
+        cleanPhone
+      )
+    ) {
       return {
         success: false,
         message:
@@ -132,11 +144,13 @@ export async function submitApplication(
     }
 
     // ---------------------------------------------------------
-    // 6. Email validation
+    // 5. Email validation
     // ---------------------------------------------------------
 
     if (
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+        email
+      )
     ) {
       return {
         success: false,
@@ -146,12 +160,17 @@ export async function submitApplication(
     }
 
     // ---------------------------------------------------------
-    // 7. Loan validation
+    // 6. Loan validation
     // ---------------------------------------------------------
 
+    const numericLoanAmount =
+      Number(loanAmount)
+
     if (
-      !loanAmount ||
-      Number(loanAmount) <= 0
+      !Number.isFinite(
+        numericLoanAmount
+      ) ||
+      numericLoanAmount <= 0
     ) {
       return {
         success: false,
@@ -160,9 +179,18 @@ export async function submitApplication(
       }
     }
 
+    // ---------------------------------------------------------
+    // 7. Monthly income validation
+    // ---------------------------------------------------------
+
+    const numericMonthlyIncome =
+      Number(monthlyIncome)
+
     if (
-      !monthlyIncome ||
-      Number(monthlyIncome) <= 0
+      !Number.isFinite(
+        numericMonthlyIncome
+      ) ||
+      numericMonthlyIncome <= 0
     ) {
       return {
         success: false,
@@ -171,16 +199,31 @@ export async function submitApplication(
       }
     }
 
-    if (!employmentStatus) {
+    // ---------------------------------------------------------
+    // 8. Employment validation
+    // ---------------------------------------------------------
+
+    const allowedEmploymentStatuses = [
+      "employed",
+      "self-employed",
+      "unemployed",
+      "retired",
+    ]
+
+    if (
+      !allowedEmploymentStatuses.includes(
+        employmentStatus
+      )
+    ) {
       return {
         success: false,
         message:
-          "Please select your employment status.",
+          "Please select a valid employment status.",
       }
     }
 
     // ---------------------------------------------------------
-    // 8. Checkbox validation
+    // 9. Checkbox validation
     // ---------------------------------------------------------
 
     if (!confirmAccurate) {
@@ -200,65 +243,160 @@ export async function submitApplication(
     }
 
     // ---------------------------------------------------------
-    // 9. Document URL validation
+    // 10. Validate uploaded documents
     // ---------------------------------------------------------
 
-    const documents: ApplicationDocumentUrls = {
-      idFront,
-      idBack,
-      bankStatement,
-      proofOfAddress,
-      payslips,
-    }
+    const uploadedFiles: {
+      field: DocumentField
+      file: File
+    }[] = []
 
-    const missingDocument = Object.entries(
-      documents
-    ).find(([, url]) => !url)
+    let totalSize = 0
 
-    if (missingDocument) {
-      const documentNames: Record<
-        keyof ApplicationDocumentUrls,
-        string
-      > = {
-        idFront: "ID Front",
-        idBack: "ID Back",
-        bankStatement: "3 Months Bank Statement",
-        proofOfAddress: "Proof of Address",
-        payslips: "3 Months Payslips",
+    for (const field of DOCUMENT_FIELDS) {
+      const value = formData.get(field)
+
+      if (
+        !(value instanceof File) ||
+        value.size === 0
+      ) {
+        return {
+          success: false,
+          message: `Please upload the required document: ${DOCUMENT_NAMES[field]}.`,
+        }
       }
 
-      const field =
-        missingDocument[0] as keyof ApplicationDocumentUrls
+      // -------------------------------------------------------
+      // File type
+      // -------------------------------------------------------
 
+      if (
+        !ALLOWED_FILE_TYPES.includes(
+          value.type
+        )
+      ) {
+        return {
+          success: false,
+          message: `${DOCUMENT_NAMES[field]} must be a PDF, JPG, JPEG or PNG file.`,
+        }
+      }
+
+      // -------------------------------------------------------
+      // Individual file size
+      // -------------------------------------------------------
+
+      if (
+        value.size > MAX_FILE_SIZE
+      ) {
+        return {
+          success: false,
+          message: `${DOCUMENT_NAMES[field]} is too large. Maximum size is 10MB.`,
+        }
+      }
+
+      totalSize += value.size
+
+      uploadedFiles.push({
+        field,
+        file: value,
+      })
+    }
+
+    // ---------------------------------------------------------
+    // 11. Total document size
+    // ---------------------------------------------------------
+
+    if (
+      totalSize > MAX_TOTAL_SIZE
+    ) {
       return {
         success: false,
-        message: `Please upload the required document: ${documentNames[field]}.`,
+        message:
+          "The combined size of your documents is too large. Maximum total size is 28MB.",
       }
     }
 
     // ---------------------------------------------------------
-    // 10. Generate application ID
+    // 12. Generate application ID
     // ---------------------------------------------------------
 
-    const applicationId = `OPT-${Date.now()}-${Math.random()
-      .toString(36)
-      .substring(2, 7)
-      .toUpperCase()}`
+    const applicationId =
+      `OPT-${Date.now()}-${Math.random()
+        .toString(36)
+        .substring(2, 7)
+        .toUpperCase()}`
+
+    // ---------------------------------------------------------
+    // 13. Submission timestamp
+    // ---------------------------------------------------------
 
     const submissionTimestamp =
-      new Date().toLocaleString("en-ZA", {
-        timeZone: "Africa/Johannesburg",
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      })
+      new Date().toLocaleString(
+        "en-ZA",
+        {
+          timeZone:
+            "Africa/Johannesburg",
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        }
+      )
 
     // ---------------------------------------------------------
-    // 11. Prepare email
+    // 14. Upload documents
+    // ---------------------------------------------------------
+
+    const documentUrls: Partial<
+      Record<DocumentField, string>
+    > = {}
+
+    for (
+      const { field, file }
+      of uploadedFiles
+    ) {
+      const extension =
+        file.name
+          .split(".")
+          .pop()
+          ?.toLowerCase() ||
+        "file"
+
+      const safeFilename =
+        `applications/${applicationId}/${field}.${extension}`
+
+      const blob = await put(
+        safeFilename,
+        file,
+        {
+          access: "public",
+          addRandomSuffix: false,
+        }
+      )
+
+      documentUrls[field] =
+        blob.url
+    }
+
+    // ---------------------------------------------------------
+    // 15. Verify all uploads completed
+    // ---------------------------------------------------------
+
+    for (const field of DOCUMENT_FIELDS) {
+      if (!documentUrls[field]) {
+        return {
+          success: false,
+          message:
+            `Failed to upload ${DOCUMENT_NAMES[field]}. Please try again.`,
+        }
+      }
+    }
+
+    // ---------------------------------------------------------
+    // 16. Prepare email
     // ---------------------------------------------------------
 
     const emailSubject =
@@ -282,7 +420,7 @@ Full Name:
 ${fullName}
 
 ID Number:
-${idNumber}
+${cleanIdNumber}
 
 Phone Number:
 ${phoneNumber}
@@ -295,13 +433,17 @@ LOAN DETAILS
 ------------
 
 Requested Amount:
-R${Number(loanAmount).toLocaleString("en-ZA")}
+R${numericLoanAmount.toLocaleString(
+      "en-ZA"
+    )}
 
 Employment Status:
 ${employmentStatus}
 
 Monthly Income:
-R${Number(monthlyIncome).toLocaleString("en-ZA")}
+R${numericMonthlyIncome.toLocaleString(
+      "en-ZA"
+    )}
 
 
 ADDITIONAL NOTES
@@ -314,29 +456,29 @@ CONSENT & VERIFICATION
 ----------------------
 
 Information Accuracy Confirmed:
-${confirmAccurate ? "YES" : "NO"}
+YES
 
 Data Processing Consent:
-${consentToProcess ? "YES" : "NO"}
+YES
 
 
 DOCUMENTS
 ---------
 
 ID Front:
-${idFront}
+${documentUrls.idFront}
 
 ID Back:
-${idBack}
+${documentUrls.idBack}
 
 3 Months Bank Statement:
-${bankStatement}
+${documentUrls.bankStatement}
 
 Proof of Address:
-${proofOfAddress}
+${documentUrls.proofOfAddress}
 
 3 Months Payslips:
-${payslips}
+${documentUrls.payslips}
 
 
 Optimus Solutions
@@ -346,7 +488,7 @@ Trade Number: 2025/17469107
 `.trim()
 
     // ---------------------------------------------------------
-    // 12. Check email configuration
+    // 17. Check Resend configuration
     // ---------------------------------------------------------
 
     const receivingEmail =
@@ -371,36 +513,39 @@ Trade Number: 2025/17469107
     }
 
     // ---------------------------------------------------------
-    // 13. Send email through Resend
+    // 18. Send email
     // ---------------------------------------------------------
 
-    const response = await fetch(
-      "https://api.resend.com/emails",
-      {
-        method: "POST",
+    const response =
+      await fetch(
+        "https://api.resend.com/emails",
+        {
+          method: "POST",
 
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${resendApiKey}`,
-        },
+          headers: {
+            "Content-Type":
+              "application/json",
+            Authorization:
+              `Bearer ${resendApiKey}`,
+          },
 
-        body: JSON.stringify({
-          from:
-            "Optimus Solutions <onboarding@resend.dev>",
+          body: JSON.stringify({
+            from:
+              "Optimus Solutions <onboarding@resend.dev>",
 
-          to: receivingEmail,
+            to: receivingEmail,
 
-          subject: emailSubject,
+            subject: emailSubject,
 
-          text: emailBody,
+            text: emailBody,
 
-          reply_to: email,
-        }),
-      }
-    )
+            reply_to: email,
+          }),
+        }
+      )
 
     // ---------------------------------------------------------
-    // 14. Handle Resend response
+    // 19. Handle email failure
     // ---------------------------------------------------------
 
     if (!response.ok) {
@@ -419,19 +564,32 @@ Trade Number: 2025/17469107
       }
     }
 
-    const resendResult =
-      await response.json()
+    // ---------------------------------------------------------
+    // 20. Log successful submission
+    // ---------------------------------------------------------
+
+    let resendResult: {
+      id?: string
+    } | null = null
+
+    try {
+      resendResult =
+        await response.json()
+    } catch {
+      resendResult = null
+    }
 
     console.log(
-      "Application email sent successfully:",
+      "Application submitted successfully:",
       {
         applicationId,
-        resendId: resendResult?.id,
+        resendId:
+          resendResult?.id,
       }
     )
 
     // ---------------------------------------------------------
-    // 15. Return success
+    // 21. Return success
     // ---------------------------------------------------------
 
     return {
