@@ -24,10 +24,7 @@ const DOCUMENT_NAMES: Record<DocumentField, string> = {
   payslips: "3 Months Payslips",
 }
 
-const DOCUMENT_DESCRIPTIONS: Record<
-  DocumentField,
-  string
-> = {
+const DOCUMENT_DESCRIPTIONS: Record<DocumentField, string> = {
   idFront: "Front of South African ID",
   idBack: "Back of South African ID",
   bankStatement: "Latest 3 months bank statement",
@@ -47,9 +44,7 @@ function escapeHtml(value: string): string {
     .replace(/'/g, "&#039;")
 }
 
-function validateBlobUrl(
-  value: string
-): boolean {
+function validateBlobUrl(value: string): boolean {
   try {
     const url = new URL(value)
 
@@ -58,21 +53,15 @@ function validateBlobUrl(
     }
 
     return (
-      url.hostname.endsWith(
-        ALLOWED_BLOB_HOST_SUFFIX
-      ) ||
-      url.hostname.includes(
-        "blob.vercel-storage.com"
-      )
+      url.hostname.endsWith(ALLOWED_BLOB_HOST_SUFFIX) ||
+      url.hostname.includes("blob.vercel-storage.com")
     )
   } catch {
     return false
   }
 }
 
-function getFileExtension(
-  url: string
-): string {
+function getFileExtension(url: string): string {
   try {
     const pathname = new URL(url).pathname
     const extension =
@@ -87,11 +76,8 @@ function getFileExtension(
   }
 }
 
-function isImageUrl(
-  url: string
-): boolean {
-  const extension =
-    getFileExtension(url)
+function isImageUrl(url: string): boolean {
+  const extension = getFileExtension(url)
 
   return [
     "jpg",
@@ -101,9 +87,7 @@ function isImageUrl(
   ].includes(extension)
 }
 
-function isPdfUrl(
-  url: string
-): boolean {
+function isPdfUrl(url: string): boolean {
   return getFileExtension(url) === "pdf"
 }
 
@@ -832,7 +816,6 @@ export async function submitApplication(
 
       </div>
 
-
       <!-- ================================================= -->
       <!-- MAIN -->
       <!-- ================================================= -->
@@ -843,8 +826,6 @@ export async function submitApplication(
           padding:30px;
         "
       >
-
-        <!-- Application received -->
 
         <div
           style="
@@ -897,7 +878,6 @@ export async function submitApplication(
           </div>
 
         </div>
-
 
         <!-- ================================================= -->
         <!-- APPLICANT -->
@@ -1042,7 +1022,6 @@ export async function submitApplication(
 
         </div>
 
-
         <!-- ================================================= -->
         <!-- LOAN -->
         <!-- ================================================= -->
@@ -1164,7 +1143,6 @@ export async function submitApplication(
 
         </div>
 
-
         <!-- ================================================= -->
         <!-- DOCUMENTS -->
         <!-- ================================================= -->
@@ -1203,7 +1181,6 @@ export async function submitApplication(
 
         </div>
 
-
         <!-- ================================================= -->
         <!-- NOTES -->
         <!-- ================================================= -->
@@ -1239,7 +1216,6 @@ export async function submitApplication(
           </div>
 
         </div>
-
 
         <!-- ================================================= -->
         <!-- CONSENT -->
@@ -1289,7 +1265,6 @@ export async function submitApplication(
 
         </div>
 
-
         <!-- ================================================= -->
         <!-- SUBMISSION -->
         <!-- ================================================= -->
@@ -1327,7 +1302,6 @@ export async function submitApplication(
 
       </div>
 
-
       <!-- ================================================= -->
       <!-- FOOTER -->
       <!-- ================================================= -->
@@ -1362,7 +1336,7 @@ export async function submitApplication(
         >
           +27 (76) 851-3565
           <br />
-          optimusolutions2@gmail.com
+          info@optimussolutions.co.za
           <br />
           Trade Number: 2025/17469107
         </div>
@@ -1477,7 +1451,7 @@ YES
 
 Optimus Solutions
 Phone: +27 (76) 851-3565
-Email: optimusolutions2@gmail.com
+Email: info@optimussolutions.co.za
 Trade Number: 2025/17469107
 `.trim()
 
