@@ -9,9 +9,14 @@ export function Footer() {
 
           {/* Company Info */}
           <div>
-            <div className="flex items-center gap-2">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/10">
-                <span className="text-xl font-bold text-white">O</span>
+            <div className="flex items-center gap-3">
+              <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg bg-white/10">
+                <Image
+                  src="/images/logo.png"
+                  alt="Optimus Solutions"
+                  fill
+                  className="object-contain p-1"
+                />
               </div>
 
               <span className="text-lg font-semibold">
