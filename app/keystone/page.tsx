@@ -34,6 +34,8 @@ const services = [
       "Annual financial statements",
       "Payroll and reporting support",
     ],
+    href: "/keystone/accounting",
+    linkLabel: "Explore accounting services",
   },
   {
     number: "02",
@@ -47,6 +49,8 @@ const services = [
       "SARS queries and disputes",
       "Tax planning and filing corrections",
     ],
+    href: "/keystone/tax",
+    linkLabel: "Explore tax services",
   },
   {
     number: "03",
@@ -60,6 +64,8 @@ const services = [
       "Transaction and due diligence support",
       "Business rescue support",
     ],
+    href: "/keystone/advisory",
+    linkLabel: "Explore advisory services",
   },
 ]
 
@@ -75,7 +81,7 @@ const industries = [
 export default function KeystonePage() {
   return (
     <main className="min-h-screen bg-white text-slate-900">
-      {/* Dedicated Keystone navigation */}
+      {/* Keystone navigation */}
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-5 sm:px-6 lg:px-8">
           <Link
@@ -97,14 +103,29 @@ export default function KeystonePage() {
           </Link>
 
           <nav className="hidden items-center gap-7 md:flex">
-            <a href="#services" className="text-sm font-medium text-slate-600 transition hover:text-[#012a4a]">
+            <a
+              href="#services"
+              className="text-sm font-medium text-slate-600 transition hover:text-[#012a4a]"
+            >
               Services
             </a>
-            <a href="#industries" className="text-sm font-medium text-slate-600 transition hover:text-[#012a4a]">
+            <a
+              href="#industries"
+              className="text-sm font-medium text-slate-600 transition hover:text-[#012a4a]"
+            >
               Industries
             </a>
-            <a href="#about" className="text-sm font-medium text-slate-600 transition hover:text-[#012a4a]">
+            <a
+              href="#about"
+              className="text-sm font-medium text-slate-600 transition hover:text-[#012a4a]"
+            >
               About
+            </a>
+            <a
+              href="#contact"
+              className="text-sm font-medium text-slate-600 transition hover:text-[#012a4a]"
+            >
+              Contact
             </a>
           </nav>
 
@@ -178,7 +199,7 @@ export default function KeystonePage() {
             </div>
           </div>
 
-          {/* Credentials panel */}
+          {/* Managing director profile */}
           <div className="relative">
             <div className="rounded-3xl border border-white/15 bg-white/[0.06] p-7 shadow-2xl shadow-black/10 backdrop-blur-sm sm:p-9">
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-blue-200">
@@ -229,7 +250,7 @@ export default function KeystonePage() {
         </div>
       </section>
 
-      {/* Introduction */}
+      {/* About */}
       <section id="about" className="py-20 sm:py-24">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:items-center lg:px-8">
           <div>
@@ -260,8 +281,11 @@ export default function KeystonePage() {
         </div>
       </section>
 
-      {/* Services */}
-      <section id="services" className="border-y border-slate-200 bg-slate-50 py-20 sm:py-24">
+      {/* Services with links to the dedicated pages */}
+      <section
+        id="services"
+        className="scroll-mt-20 border-y border-slate-200 bg-slate-50 py-20 sm:py-24"
+      >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#012a4a]">
@@ -271,8 +295,8 @@ export default function KeystonePage() {
               Services built around your business needs.
             </h2>
             <p className="mt-5 text-base leading-7 text-slate-600">
-              Explore the main service areas and contact Keystone to discuss
-              the support appropriate for your organisation.
+              Explore each service area for more detail, then contact Keystone
+              directly to discuss the support appropriate for your organisation.
             </p>
           </div>
 
@@ -283,10 +307,10 @@ export default function KeystonePage() {
               return (
                 <article
                   key={service.number}
-                  className="group rounded-2xl border border-slate-200 bg-white p-7 transition duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl hover:shadow-slate-900/5 sm:p-8"
+                  className="group flex flex-col rounded-2xl border border-slate-200 bg-white p-7 transition duration-300 hover:-translate-y-1 hover:border-[#012a4a]/30 hover:shadow-xl hover:shadow-slate-900/5 sm:p-8"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#012a4a]/5 text-[#012a4a]">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#012a4a]/[0.07] text-[#012a4a] transition group-hover:bg-[#012a4a] group-hover:text-white">
                       <Icon className="h-6 w-6" />
                     </div>
                     <span className="text-sm font-semibold text-slate-300">
@@ -314,21 +338,30 @@ export default function KeystonePage() {
                     ))}
                   </ul>
 
-                  <a
-                    href={`mailto:davies@keystoneassociate.co.za?subject=${encodeURIComponent(
-                      `Enquiry: ${service.title}`
-                    )}`}
-                    className="mt-7 inline-flex items-center gap-2 text-sm font-semibold text-[#012a4a] transition hover:text-blue-700"
-                  >
-                    Enquire about this service
-                    <ArrowRight className="h-4 w-4" />
-                  </a>
+                  <div className="mt-auto pt-7">
+                    <Link
+                      href={service.href}
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-[#012a4a] transition group-hover:gap-3 hover:text-slate-600"
+                    >
+                      {service.linkLabel}
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+
+                    <a
+                      href={`mailto:davies@keystoneassociate.co.za?subject=${encodeURIComponent(
+                        `Enquiry: ${service.title}`
+                      )}`}
+                      className="mt-4 block text-xs font-medium text-slate-500 transition hover:text-[#012a4a]"
+                    >
+                      Or email Keystone about this service
+                    </a>
+                  </div>
                 </article>
               )
             })}
           </div>
 
-          <div className="mt-8 text-center">
+          <div className="mt-10 text-center">
             <a
               href="https://www.keystoneassociate.co.za"
               target="_blank"
@@ -343,7 +376,10 @@ export default function KeystonePage() {
       </section>
 
       {/* Industries */}
-      <section id="industries" className="py-20 sm:py-24">
+      <section
+        id="industries"
+        className="scroll-mt-20 py-20 sm:py-24"
+      >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#012a4a]">
@@ -362,7 +398,7 @@ export default function KeystonePage() {
             {industries.map((industry) => (
               <div
                 key={industry}
-                className="flex min-h-24 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-5 text-center text-sm font-semibold text-slate-700 transition hover:border-blue-200 hover:bg-slate-50"
+                className="flex min-h-24 items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-5 text-center text-sm font-semibold text-slate-700 transition hover:border-[#012a4a]/30 hover:bg-slate-50"
               >
                 {industry}
               </div>
@@ -407,7 +443,10 @@ export default function KeystonePage() {
       </section>
 
       {/* Contact */}
-      <section id="contact" className="bg-[#012a4a] py-16 text-white sm:py-20">
+      <section
+        id="contact"
+        className="scroll-mt-20 bg-[#012a4a] py-16 text-white sm:py-20"
+      >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             <div>
@@ -431,7 +470,9 @@ export default function KeystonePage() {
                 >
                   <Mail className="mt-0.5 h-5 w-5 shrink-0 text-blue-200" />
                   <span>
-                    <span className="block font-semibold text-white">Email</span>
+                    <span className="block font-semibold text-white">
+                      Email
+                    </span>
                     <span className="mt-1 block break-all">
                       davies@keystoneassociate.co.za
                     </span>
@@ -444,7 +485,9 @@ export default function KeystonePage() {
                 >
                   <Phone className="mt-0.5 h-5 w-5 shrink-0 text-blue-200" />
                   <span>
-                    <span className="block font-semibold text-white">Telephone</span>
+                    <span className="block font-semibold text-white">
+                      Telephone
+                    </span>
                     <span className="mt-1 block">065 870 7068</span>
                   </span>
                 </a>
@@ -452,8 +495,12 @@ export default function KeystonePage() {
                 <div className="flex items-start gap-4 text-sm text-slate-200">
                   <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-blue-200" />
                   <span>
-                    <span className="block font-semibold text-white">Location</span>
-                    <span className="mt-1 block">Midrand, Gauteng, South Africa</span>
+                    <span className="block font-semibold text-white">
+                      Location
+                    </span>
+                    <span className="mt-1 block">
+                      Midrand, Gauteng, South Africa
+                    </span>
                   </span>
                 </div>
               </div>
@@ -481,6 +528,24 @@ export default function KeystonePage() {
           </p>
 
           <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+            <Link
+              href="/keystone/accounting"
+              className="transition hover:text-white"
+            >
+              Accounting & Reporting
+            </Link>
+            <Link
+              href="/keystone/tax"
+              className="transition hover:text-white"
+            >
+              Tax & SARS
+            </Link>
+            <Link
+              href="/keystone/advisory"
+              className="transition hover:text-white"
+            >
+              Business Advisory
+            </Link>
             <a
               href="https://www.keystoneassociate.co.za"
               target="_blank"
