@@ -13,6 +13,7 @@ export default function HomePage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
+
       <main className="flex-1">
         <HeroSection />
         <TrustSection />
@@ -20,9 +21,10 @@ export default function HomePage() {
         <HowItWorksSection />
         <BenefitsSection />
         <LoanInfoSection />
-        <FAQSection />
         <PartnerSection />
+        <FAQSection />
       </main>
+
       <Footer />
     </div>
   )
