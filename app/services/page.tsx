@@ -1,6 +1,6 @@
 
 "use client"
-
+import { Header } from "@/components/header"
 import Image from "next/image"
 import Link from "next/link"
 import {
@@ -95,7 +95,9 @@ const industries = [
 
 export default function ServicesPage() {
   return (
-    <main className="min-h-screen overflow-hidden bg-white text-slate-900">
+ <>
+  <Header />
+  <main className="min-h-screen overflow-hidden bg-white text-slate-900">
       {/* Hero */}
       <section className="relative isolate overflow-hidden bg-[#012a4a] pt-24 text-white sm:pt-28">
         {/* Decorative background lighting */}
@@ -134,11 +136,6 @@ export default function ServicesPage() {
                 className="h-20 w-auto object-contain sm:h-24"
               />
             </Link>
-
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/[0.08] px-4 py-2 text-sm text-cyan-200">
-              <span className="h-2 w-2 rounded-full bg-cyan-300 shadow-[0_0_12px_rgba(103,232,249,0.8)]" />
-              Financial Solutions & Business Support
-            </div>
 
             <h1 className="max-w-3xl text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
               More support for
@@ -498,3 +495,5 @@ export default function ServicesPage() {
     </main>
   )
 }
+  </main>
+</>
