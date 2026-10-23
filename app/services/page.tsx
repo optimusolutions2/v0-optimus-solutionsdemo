@@ -493,7 +493,6 @@ export default function ServicesPage() {
         </p>
       </footer>
     </main>
-  )
+  </>
 }
-  </main>
-</>
+
