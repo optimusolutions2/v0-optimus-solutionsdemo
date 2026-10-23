@@ -491,8 +491,8 @@ export default function ServicesPage() {
         <p>
           © {new Date().getFullYear()} Optimus Solutions. All rights reserved.
         </p>
-      </footer>
+          </footer>
     </main>
   </>
+  )
 }
-
