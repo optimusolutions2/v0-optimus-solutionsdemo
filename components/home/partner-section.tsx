@@ -1,4 +1,3 @@
-
 import Link from "next/link"
 import Image from "next/image"
 import {
@@ -8,30 +7,41 @@ import {
   FileCheck2,
   ShieldCheck,
   TrendingUp,
+  BriefcaseBusiness,
+  Receipt,
 } from "lucide-react"
 
 const services = [
   {
     icon: Calculator,
-    title: "Accounting & Reporting",
-    description: "Bookkeeping, financial statements and management accounts.",
+    title: "Accounting & Financial Reporting",
+    description:
+      "Bookkeeping, management accounts, financial statements and payroll support.",
   },
   {
     icon: FileCheck2,
-    title: "Tax Services",
-    description: "Tax returns, VAT and assistance with SARS matters.",
+    title: "Tax & SARS Services",
+    description:
+      "Individual and company tax, VAT, tax returns and SARS assistance.",
   },
   {
     icon: TrendingUp,
     title: "Business Advisory",
-    description: "Financial insight and support for important business decisions.",
+    description:
+      "Financial modelling, business valuations and support for important decisions.",
+  },
+  {
+    icon: BriefcaseBusiness,
+    title: "Business Administration",
+    description:
+      "Company secretarial support, CIPC services and compliance assistance.",
   },
 ]
 
 export function PartnerSection() {
   return (
     <section
-      id="partnership"
+      id="services"
       className="relative overflow-hidden bg-white py-20 sm:py-24"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -49,75 +59,65 @@ export function PartnerSection() {
             <div>
               <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white">
                 <ShieldCheck className="h-4 w-4" />
-                Our Professional Advisory Partner
+                More Services. One Point of Contact.
               </div>
 
               <p className="mb-3 text-sm font-semibold uppercase tracking-[0.18em] text-blue-200">
-                A partnership built around your business
+                Introducing Our Business Services
               </p>
 
               <h2 className="max-w-xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
-                Meet Keystone Advisory and Associates
+                More ways for Optimus Solutions to support you.
               </h2>
 
               <p className="mt-5 max-w-xl text-base leading-7 text-blue-100 sm:text-lg">
-                Beyond financing, businesses need sound financial information
-                and reliable professional guidance. Through our partnership
-                with Keystone Advisory and Associates, you can explore
-                accounting, tax and business advisory services in one place.
+                Whether you need financial solutions, accounting support, tax
+                assistance or business advice, Optimus Solutions offers a
+                broader range of services to help you move forward.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
-                  href="/keystone"
+                  href="/services"
                   className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold text-[#012a4a] transition hover:bg-blue-50"
                 >
-                  Explore Keystone Advisory
+                  Explore Our Services
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
 
-                <a
-                  href="https://www.keystoneassociate.co.za"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  href="/contact"
                   className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/25 px-6 py-3 font-semibold text-white transition hover:bg-white/10"
                 >
-                  Visit Keystone Website
+                  Make an Enquiry
                   <ArrowUpRight className="h-4 w-4" />
-                </a>
+                </Link>
               </div>
 
               <p className="mt-5 text-sm text-blue-200">
-                Advisory services are separate from Optimus Solutions' loan
-                application process.
+                Professional support for individuals, entrepreneurs and
+                established businesses.
               </p>
             </div>
 
             <div className="rounded-2xl border border-white/15 bg-white/[0.07] p-5 sm:p-7">
               <div className="mb-6 border-b border-white/15 pb-5">
                 <p className="text-sm font-medium text-blue-200">
-                  Discover the services
+                  Our Services
                 </p>
                 <h3 className="mt-2 text-2xl font-bold">
-                  Professional support for your business
+                  Practical support for your next step
                 </h3>
               </div>
 
-              <div className="space-y-5">
+              <div className="space-y-3">
                 {services.map((service) => {
                   const Icon = service.icon
-
-                  const href =
-                    service.title === "Accounting & Reporting"
-                      ? "/keystone/accounting"
-                      : service.title === "Tax Services"
-                        ? "/keystone/tax"
-                        : "/keystone/advisory"
 
                   return (
                     <Link
                       key={service.title}
-                      href={href}
+                      href="/services"
                       className="group flex gap-4 rounded-xl p-3 transition hover:bg-white/10"
                     >
                       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-blue-100">
@@ -140,16 +140,17 @@ export function PartnerSection() {
               </div>
 
               <Link
-                href="/keystone"
+                href="/services"
                 className="mt-5 flex items-center justify-between border-t border-white/15 pt-5 text-sm font-semibold text-white transition hover:text-blue-200"
               >
-                View the full partnership
+                View all services
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           </div>
         </div>
 
+        {/* Existing credit-provider credentials — preserved */}
         <div className="mt-10 flex flex-col items-center justify-center gap-6 border-t border-slate-200 pt-8 sm:flex-row sm:gap-10">
           <div className="flex items-center gap-3">
             <Image
