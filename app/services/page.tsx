@@ -1,21 +1,20 @@
+
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import {
   ArrowRight,
   Calculator,
-  FileText,
-  Landmark,
-  BriefcaseBusiness,
+  Receipt,
   ChartNoAxesCombined,
   Users,
   ClipboardCheck,
-  Receipt,
-  Building2,
   HandCoins,
   CheckCircle2,
   Phone,
   Mail,
+  BriefcaseBusiness,
 } from "lucide-react"
 
 const serviceGroups = [
@@ -95,129 +94,174 @@ export default function ServicesPage() {
   return (
     <main className="min-h-screen bg-white text-slate-900">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-[#012a4a] pt-32 text-white sm:pt-36">
-        <div className="absolute -right-24 -top-24 h-80 w-80 rounded-full border border-white/10" />
-        <div className="absolute -right-12 -top-12 h-56 w-56 rounded-full border border-white/10" />
+      <section className="relative overflow-hidden bg-[#012a4a] pt-28 text-white sm:pt-32">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full border border-white/10"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-12 -top-12 h-56 w-56 rounded-full border border-white/10"
+        />
         <div className="absolute bottom-0 right-0 h-1 w-1/3 bg-cyan-400/60" />
 
-        <div className="relative mx-auto grid max-w-7xl gap-12 px-4 pb-20 sm:px-6 md:grid-cols-[1.2fr_0.8fr] md:items-center md:px-8 md:pb-24">
+        <div className="relative mx-auto grid max-w-7xl gap-12 px-4 pb-16 sm:px-6 md:grid-cols-[1.2fr_0.8fr] md:items-center md:px-8 md:pb-24">
           <div>
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm text-cyan-200">
+            <Link
+              href="/"
+              aria-label="Optimus Solutions home"
+              className="mb-8 inline-flex rounded-xl bg-white px-4 py-3 transition hover:bg-slate-100"
+            >
+              <Image
+                src="/images/logo.png"
+                alt="Optimus Solutions"
+                width={240}
+                height={90}
+                priority
+                className="h-14 w-auto object-contain sm:h-16"
+              />
+            </Link>
+
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm text-cyan-200">
               <span className="h-2 w-2 rounded-full bg-cyan-400" />
-              Optimus Solutions
+              Financial Solutions & Business Support
             </div>
 
             <h1 className="max-w-3xl text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-              More support for
+              Support for
               <span className="block text-cyan-300">your next move.</span>
             </h1>
 
             <p className="mt-6 max-w-2xl text-base leading-8 text-slate-200 sm:text-lg">
-              From financial solutions to accounting, tax and business
-              advisory, Optimus Solutions helps individuals and businesses
-              access the support they need to move forward.
+              Loans are at the heart of what we do. We also offer accounting,
+              tax and business support to help individuals and businesses
+              take their next steps with confidence.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/apply"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-cyan-300 px-6 py-3.5 font-bold text-[#012a4a] transition hover:bg-cyan-200"
+              >
+                Apply for a Loan
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+
               <a
                 href="#professional-services"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-6 py-3.5 font-semibold text-[#012a4a] transition hover:bg-cyan-50"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/30 px-6 py-3.5 font-semibold text-white transition hover:bg-white/10"
               >
-                Explore Our Services
-                <ArrowRight className="h-4 w-4" />
+                Explore Additional Services
               </a>
-
-              <Link
-                href="/contact"
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/30 px-6 py-3.5 font-semibold text-white transition hover:bg-white/10"
-              >
-                Talk to Our Team
-              </Link>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-6">
-              <HandCoins className="mb-5 h-8 w-8 text-cyan-300" />
-              <h2 className="text-lg font-semibold">Financial Solutions</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-300">
-                Explore our existing loan services and application options.
-              </p>
-              <Link
-                href="/apply"
-                className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-cyan-300 hover:text-white"
-              >
-                Apply online <ArrowRight className="h-4 w-4" />
-              </Link>
+          <div className="grid gap-4">
+            <div className="relative overflow-hidden rounded-2xl border border-cyan-300/30 bg-white p-6 text-[#012a4a] shadow-xl sm:p-8">
+              <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-cyan-100/70" />
+              <div className="relative">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#012a4a] text-white">
+                  <HandCoins className="h-6 w-6" />
+                </div>
+                <p className="mt-5 text-sm font-bold uppercase tracking-widest text-sky-700">
+                  Our Main Service
+                </p>
+                <h2 className="mt-2 text-2xl font-bold sm:text-3xl">
+                  Loan Solutions
+                </h2>
+                <p className="mt-3 leading-7 text-slate-600">
+                  Explore our loan offering and start your application online.
+                  Our team is here to help you understand the next steps.
+                </p>
+                <Link
+                  href="/apply"
+                  className="mt-6 inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-[#012a4a] px-5 py-3 font-semibold text-white transition hover:bg-[#03416f]"
+                >
+                  Apply Now <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
             </div>
 
-            <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.06] p-6">
-              <BriefcaseBusiness className="mb-5 h-8 w-8 text-cyan-300" />
-              <h2 className="text-lg font-semibold">Business Support</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-300">
-                Accounting, tax compliance and advisory services for
-                organisations.
-              </p>
-              <a
-                href="#professional-services"
-                className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-cyan-300 hover:text-white"
-              >
-                View services <ArrowRight className="h-4 w-4" />
-              </a>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.07] p-5 sm:p-6">
+              <div className="flex items-start gap-4">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-cyan-300">
+                  <BriefcaseBusiness className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold">
+                    Additional Business Services
+                  </h2>
+                  <p className="mt-2 text-sm leading-6 text-slate-300">
+                    Accounting, tax compliance, financial reporting and
+                    business advisory.
+                  </p>
+                  <a
+                    href="#professional-services"
+                    className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-cyan-300 transition hover:text-white"
+                  >
+                    Explore services <ArrowRight className="h-4 w-4" />
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Introduction */}
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 md:px-8 md:py-20">
-        <div className="grid gap-8 md:grid-cols-[0.8fr_1.2fr] md:items-end">
+      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 md:px-8 md:py-20">
+        <div className="grid gap-6 md:grid-cols-[0.8fr_1.2fr] md:items-end">
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.18em] text-sky-700">
-              What We Do
+              One Company, More Support
             </p>
             <h2 className="mt-3 text-3xl font-bold tracking-tight text-[#012a4a] sm:text-4xl">
-              Support built around your needs.
+              Here to help you move forward.
             </h2>
           </div>
 
           <p className="max-w-2xl text-base leading-8 text-slate-600">
-            Every individual and business faces different challenges. Our
-            services are designed to provide practical financial, compliance
-            and business support, with a focus on clarity, professionalism
-            and dependable service.
+            Whether you need financial assistance or professional support for
+            your business, Optimus Solutions brings these services together
+            under one roof. Start with the service you need and contact our
+            team to discuss your requirements.
           </p>
         </div>
       </section>
 
-      {/* Loan services */}
-      <section className="border-y border-slate-200 bg-slate-50 py-14">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 md:grid-cols-[0.8fr_1.2fr] md:items-center md:px-8">
+      {/* Main loan offering */}
+      <section className="border-y border-slate-200 bg-slate-50 py-14 sm:py-16">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 md:grid-cols-[0.9fr_1.1fr] md:items-center md:px-8">
           <div>
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#012a4a] text-white">
-              <Landmark className="h-6 w-6" />
+              <HandCoins className="h-6 w-6" />
             </div>
-            <h2 className="mt-5 text-2xl font-bold text-[#012a4a] sm:text-3xl">
-              Loan Solutions
+            <p className="mt-5 text-sm font-bold uppercase tracking-[0.18em] text-sky-700">
+              Personal Financial Solutions
+            </p>
+            <h2 className="mt-3 text-3xl font-bold text-[#012a4a] sm:text-4xl">
+              Need a loan?
             </h2>
-            <p className="mt-3 leading-7 text-slate-600">
-              Explore our existing loan offering and submit an application
-              through our online application process.
+            <p className="mt-4 leading-7 text-slate-600">
+              Take the first step through our online loan application. Submit
+              your details and supporting documents for review by our team.
+              Applications are subject to assessment and approval.
             </p>
             <Link
               href="/apply"
-              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[#012a4a] px-5 py-3 font-semibold text-white transition hover:bg-[#03416f]"
+              className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-lg bg-[#012a4a] px-6 py-3 font-semibold text-white transition hover:bg-[#03416f]"
             >
-              Apply Now <ArrowRight className="h-4 w-4" />
+              Start Your Application
+              <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
             {[
               "Online loan applications",
-              "Application information and requirements",
+              "Submit supporting information",
               "Application review process",
-              "Direct customer support",
+              "Customer support when you need it",
             ].map((item) => (
               <div
                 key={item}
@@ -233,22 +277,23 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* Professional services */}
+      {/* Additional professional services */}
       <section
         id="professional-services"
         className="mx-auto max-w-7xl scroll-mt-28 px-4 py-16 sm:px-6 md:px-8 md:py-24"
       >
         <div className="max-w-3xl">
           <p className="text-sm font-bold uppercase tracking-[0.18em] text-sky-700">
-            Business & Professional Services
+            Additional Services
           </p>
           <h2 className="mt-3 text-3xl font-bold tracking-tight text-[#012a4a] sm:text-4xl">
-            The expertise to keep you moving.
+            More ways we can support your business.
           </h2>
           <p className="mt-5 leading-8 text-slate-600">
-            Access accounting, taxation, financial reporting and advisory
-            services through Optimus Solutions. Get in touch to discuss your
-            requirements and find out which services are suitable for you.
+            Alongside our loan offering, Optimus Solutions provides
+            accounting, tax, financial reporting, advisory and business
+            administration support. Contact us to discuss your needs and
+            confirm which services are suitable for you.
           </p>
         </div>
 
@@ -285,7 +330,7 @@ export default function ServicesPage() {
                       className="flex items-start gap-3 text-sm leading-6 text-slate-700"
                     >
                       <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-sky-700" />
-                      {service}
+                      <span>{service}</span>
                     </li>
                   ))}
                 </ul>
@@ -312,8 +357,8 @@ export default function ServicesPage() {
               Supporting businesses across sectors
             </h2>
             <p className="mt-4 leading-7 text-slate-600">
-              Our professional services can support organisations operating
-              in a range of industries.
+              Our additional professional services can support organisations
+              operating in a range of industries.
             </p>
           </div>
 
@@ -330,7 +375,7 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* Call to action */}
+      {/* Contact call to action */}
       <section className="bg-[#012a4a] py-16 text-white sm:py-20">
         <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 sm:px-6 md:flex-row md:items-center md:justify-between md:px-8">
           <div className="max-w-2xl">
@@ -338,31 +383,31 @@ export default function ServicesPage() {
               Let’s Talk
             </p>
             <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-              Let’s find the right support for you.
+              How can we help you?
             </h2>
             <p className="mt-4 leading-7 text-slate-200">
-              Contact Optimus Solutions to discuss our services, ask a
-              question or take the next step.
+              Whether you want to apply for a loan or enquire about our
+              additional services, our team is ready to hear from you.
             </p>
           </div>
 
           <div className="flex shrink-0 flex-col gap-3 sm:flex-row md:flex-col">
             <Link
               href="/contact"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-white px-6 py-3.5 font-semibold text-[#012a4a] transition hover:bg-cyan-50"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-white px-6 py-3.5 font-semibold text-[#012a4a] transition hover:bg-cyan-50"
             >
               Contact Us <ArrowRight className="h-4 w-4" />
             </Link>
             <a
               href="tel:+27729603512"
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-white/30 px-6 py-3.5 font-semibold text-white transition hover:bg-white/10"
+              className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/30 px-6 py-3.5 font-semibold text-white transition hover:bg-white/10"
             >
               <Phone className="h-4 w-4" />
               Call Optimus
             </a>
             <a
               href="mailto:info@optimussolutions.co.za"
-              className="inline-flex items-center justify-center gap-2 px-3 py-2 text-sm text-cyan-200 transition hover:text-white"
+              className="inline-flex min-h-12 items-center justify-center gap-2 px-3 py-2 text-sm text-cyan-200 transition hover:text-white"
             >
               <Mail className="h-4 w-4" />
               Email Us
