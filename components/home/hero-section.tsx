@@ -42,12 +42,8 @@ export function HeroSection() {
         <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
           {/* Main message */}
           <div className="text-center lg:text-left">
-            <div className={reveal("delay-100")}>
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.07] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-200 sm:text-sm">
-            </div>
-
             <h1
-              className={`mt-7 text-balance text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl xl:text-7xl ${reveal("delay-150")}`}
+              className={`mt-0 text-balance text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-5xl lg:text-6xl xl:text-7xl ${reveal("delay-100")}`}
             >
               Financial support
               <span className="mt-2 block text-slate-300">
@@ -63,7 +59,7 @@ export function HeroSection() {
               advisory services.
             </p>
 
-            {/* Registration details */}
+            {/* NCR registration details */}
             <div className={`mt-7 ${reveal("delay-250")}`}>
               <div className="mx-auto inline-flex max-w-full items-center gap-4 rounded-2xl border border-white/15 bg-white/[0.06] p-4 text-left backdrop-blur-sm lg:mx-0">
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-white p-1.5">
@@ -92,8 +88,10 @@ export function HeroSection() {
               </div>
             </div>
 
-            {/* Calls to action */}
-            <div className={`mt-9 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start ${reveal("delay-300")}`}>
+            {/* Action buttons */}
+            <div
+              className={`mt-9 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start ${reveal("delay-300")}`}
+            >
               <Button
                 asChild
                 size="lg"
@@ -111,13 +109,13 @@ export function HeroSection() {
                 variant="outline"
                 className="min-h-12 w-full rounded-xl border-white/25 bg-white/[0.04] px-7 font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:border-white/50 hover:bg-white/10 hover:text-white sm:w-auto"
               >
-                <Link href="/contact">
-                  Enquire Now
-                </Link>
+                <Link href="/contact">Enquire Now</Link>
               </Button>
             </div>
 
-            <p className={`mt-5 text-sm text-slate-400 ${reveal("delay-500")}`}>
+            <p
+              className={`mt-5 text-sm text-slate-400 ${reveal("delay-500")}`}
+            >
               Need accounting, tax or business support?{" "}
               <Link
                 href="/contact"
@@ -130,7 +128,9 @@ export function HeroSection() {
           </div>
 
           {/* Image and trust information */}
-          <div className={`relative mx-auto w-full max-w-xl lg:max-w-none ${reveal("delay-200")}`}>
+          <div
+            className={`relative mx-auto w-full max-w-xl lg:max-w-none ${reveal("delay-200")}`}
+          >
             <div className="absolute -inset-3 rounded-[2rem] bg-gradient-to-br from-white/15 via-transparent to-slate-400/10 blur-2xl" />
 
             <div className="relative overflow-hidden rounded-[1.5rem] border border-white/15 bg-[#001d36] p-2 shadow-2xl shadow-black/20 sm:rounded-[2rem] sm:p-3">
@@ -143,6 +143,7 @@ export function HeroSection() {
                   sizes="(max-width: 1024px) 100vw, 48vw"
                   className="object-cover object-[center_30%]"
                 />
+
                 <div className="absolute inset-0 bg-gradient-to-t from-[#001d36]/70 via-transparent to-transparent" />
 
                 <div className="absolute inset-x-4 bottom-4 sm:inset-x-6 sm:bottom-6">
@@ -151,6 +152,7 @@ export function HeroSection() {
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/10 text-slate-200">
                         <CheckCircle2 className="h-5 w-5" />
                       </div>
+
                       <div>
                         <p className="font-semibold text-white">
                           Support when you need it
@@ -172,6 +174,7 @@ export function HeroSection() {
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/10 text-slate-200">
                   <ShieldCheck className="h-5 w-5" />
                 </div>
+
                 <div>
                   <p className="text-sm font-semibold text-white">
                     NCR registered
@@ -186,6 +189,7 @@ export function HeroSection() {
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/10 text-slate-200">
                   <Clock3 className="h-5 w-5" />
                 </div>
+
                 <div>
                   <p className="text-sm font-semibold text-white">
                     Clear next steps
