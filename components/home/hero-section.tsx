@@ -40,7 +40,11 @@ export function HeroSection() {
 
       <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-16 sm:px-6 sm:pb-24 sm:pt-20 lg:px-8 lg:pb-28 lg:pt-24">
         <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-14">
-          
+          {/* Main message */}
+          <div className="text-center lg:text-left">
+            <div className={reveal("delay-100")}>
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.07] px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-200 sm:text-sm">
+            </div>
 
             <h1
               className={`mt-7 text-balance text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-6xl xl:text-7xl ${reveal("delay-150")}`}
