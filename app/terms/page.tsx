@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next"
 import Link from "next/link"
 import {
@@ -12,7 +13,7 @@ import {
 export const metadata: Metadata = {
   title: "Terms of Service | Optimus Solutions",
   description:
-    "Read the Terms of Service governing use of the Optimus Solutions website and application services.",
+    "Read the Terms of Service governing use of the Optimus Solutions website, loan applications and other services.",
   robots: {
     index: true,
     follow: true,
@@ -57,11 +58,12 @@ export default function TermsOfServicePage() {
 
             <p className="mt-5 max-w-2xl text-base leading-7 text-white/75 sm:text-lg">
               These terms explain the conditions that apply when you use the
-              Optimus Solutions website and our application services.
+              Optimus Solutions website, submit an application or access our
+              services.
             </p>
 
             <p className="mt-6 text-sm text-white/50">
-              Last updated: 24 August 2026
+              Last updated: 28 October 2026
             </p>
           </div>
         </div>
@@ -77,13 +79,22 @@ export default function TermsOfServicePage() {
             </h2>
 
             <p className="mt-4 leading-7 text-gray-600">
-              These Terms of Service govern your use of the Optimus Solutions
-              website and the services made available through the website.
+              These Terms of Service govern your access to and use of the
+              Optimus Solutions website, online application forms and services
+              made available through the website.
             </p>
 
             <p className="mt-4 leading-7 text-gray-600">
-              By using this website or submitting an application, you
-              acknowledge that you have read and understood these terms.
+              By accessing the website, you agree to use it lawfully and in
+              accordance with these terms. Submitting an application does not,
+              by itself, create a loan agreement or guarantee that a service
+              will be provided.
+            </p>
+
+            <p className="mt-4 leading-7 text-gray-600">
+              If you do not agree with these terms, please discontinue use of
+              the website. Any rights that cannot lawfully be waived remain
+              unaffected.
             </p>
           </section>
 
@@ -95,21 +106,28 @@ export default function TermsOfServicePage() {
 
             <p className="mt-4 leading-7 text-gray-600">
               Optimus Solutions provides loan-related application and support
-              services. Information submitted through the website may be
-              reviewed as part of an application assessment process.
+              services. The website may be used to submit information for
+              consideration as part of an application and assessment process.
             </p>
 
             <p className="mt-4 leading-7 text-gray-600">
-              Submission of an application does not constitute an approval,
-              offer of credit or guarantee that a loan or other financial
-              product will be provided.
+              The information displayed on the website is provided to explain
+              our services and application process. The specific services
+              available to an applicant depend on the applicable requirements,
+              assessment and formal documentation.
+            </p>
+
+            <p className="mt-4 leading-7 text-gray-600">
+              Nothing on this website should be interpreted as a guarantee of
+              credit approval or as confirmation that a particular financial
+              product is available to every applicant.
             </p>
           </section>
 
           {/* 3 */}
           <section className="mt-12">
             <h2 className="text-2xl font-semibold">
-              3. Applications
+              3. Applications and Information Provided
             </h2>
 
             <p className="mt-4 leading-7 text-gray-600">
@@ -119,14 +137,21 @@ export default function TermsOfServicePage() {
             </p>
 
             <p className="mt-4 leading-7 text-gray-600">
-              You must not knowingly submit false, misleading, fraudulent or
-              incomplete information.
+              You must not knowingly submit false, misleading, altered or
+              fraudulent information, or omit material information where doing
+              so would make your application misleading.
             </p>
 
             <p className="mt-4 leading-7 text-gray-600">
-              Optimus Solutions may request additional information or
-              supporting documentation where reasonably necessary to assess or
-              verify an application.
+              You are responsible for reviewing the details you submit and
+              notifying us if information relevant to your application
+              changes or you discover an error.
+            </p>
+
+            <p className="mt-4 leading-7 text-gray-600">
+              We may request additional information or supporting documents
+              where reasonably necessary to assess, verify or administer an
+              application, subject to applicable law.
             </p>
           </section>
 
@@ -137,13 +162,21 @@ export default function TermsOfServicePage() {
 
               <div>
                 <h2 className="text-xl font-semibold">
-                  4. Personal Information
+                  4. Personal Information and Privacy
                 </h2>
 
                 <p className="mt-3 leading-7 text-gray-600">
-                  Personal information submitted through the website will be
-                  handled in accordance with our Privacy Policy and applicable
-                  South African data protection requirements.
+                  Personal information submitted through the website may be
+                  processed for purposes connected with your application,
+                  identity verification, communications, service delivery,
+                  security and applicable legal obligations.
+                </p>
+
+                <p className="mt-3 leading-7 text-gray-600">
+                  Personal information will be handled in accordance with our
+                  Privacy Policy and applicable South African data protection
+                  law. Access to and processing of information remain subject
+                  to applicable legal requirements.
                 </p>
 
                 <Link
@@ -163,83 +196,145 @@ export default function TermsOfServicePage() {
             </h2>
 
             <p className="mt-4 leading-7 text-gray-600">
-              Where supporting documents are requested, you agree to submit
-              documents that belong to you or that you are legally authorised
-              to provide.
+              Where supporting documents are requested, you must submit
+              genuine documents that belong to you or that you are legally
+              authorised to provide.
             </p>
 
             <p className="mt-4 leading-7 text-gray-600">
-              Documents may be used for identity verification, application
-              assessment, affordability assessment, compliance and other
-              legitimate purposes connected with the requested service.
+              Depending on the application, documents may include identity
+              documents, bank statements, proof of address, payslips or other
+              relevant records.
+            </p>
+
+            <p className="mt-4 leading-7 text-gray-600">
+              Documents may be used to verify information and assess an
+              application, subject to the purposes explained in our Privacy
+              Policy and applicable law. Do not submit another person's
+              personal information without appropriate authority.
             </p>
           </section>
 
           {/* 6 */}
           <section className="mt-12">
             <h2 className="text-2xl font-semibold">
-              6. Application Assessment
+              6. Application Assessment and Decisions
             </h2>
 
             <p className="mt-4 leading-7 text-gray-600">
-              All applications are subject to assessment and verification.
-              Submitting an application does not guarantee approval.
+              All applications are subject to the applicable assessment and
+              verification process. Submission of an application does not
+              guarantee approval, a particular loan amount or a specific
+              approval time.
             </p>
 
             <p className="mt-4 leading-7 text-gray-600">
-              An application may be declined where information cannot be
-              verified, where eligibility requirements are not met, where
-              documents are insufficient, or for other legitimate reasons.
+              An application may be delayed, declined or require further
+              information where details cannot be verified, eligibility
+              requirements are not met, documentation is insufficient or
+              another legitimate reason applies.
+            </p>
+
+            <p className="mt-4 leading-7 text-gray-600">
+              Any preliminary indication or communication about an application
+              is not a final offer unless it is expressly issued as such by an
+              authorised party.
             </p>
           </section>
 
           {/* 7 */}
           <section className="mt-12">
             <h2 className="text-2xl font-semibold">
-              7. Loan Terms & Agreements
+              7. Loan Terms and Formal Agreements
             </h2>
 
             <p className="mt-4 leading-7 text-gray-600">
-              Where an application is approved, the applicable loan amount,
-              interest, fees, repayment period, repayment method and other
-              contractual terms will be communicated through the relevant
-              agreement or documentation.
+              If an application is approved, the applicable loan amount,
+              interest rate, fees, repayment schedule, repayment method and
+              other material terms will be set out in the relevant formal
+              agreement and disclosures.
             </p>
 
             <p className="mt-4 leading-7 text-gray-600">
-              Nothing on this website should be interpreted as replacing the
-              terms of a formal agreement entered into between the relevant
-              parties.
+              You should read and understand all applicable documentation
+              before accepting a loan or other financial product. If anything
+              is unclear, request clarification before signing or accepting
+              the agreement.
+            </p>
+
+            <p className="mt-4 leading-7 text-gray-600">
+              The formal agreement, together with any applicable disclosures,
+              governs the relevant transaction. These website terms do not
+              replace or override mandatory consumer protections or the
+              specific terms of a valid agreement.
             </p>
           </section>
 
           {/* 8 */}
           <section className="mt-12">
             <h2 className="text-2xl font-semibold">
-              8. Debit Orders & Payment Administration
+              8. Debit Orders and Repayments
             </h2>
 
             <p className="mt-4 leading-7 text-gray-600">
-              Where applicable, approved applicants may be required to complete
-              formal payment or debit order documentation before repayments can
-              be processed.
+              Where applicable, repayment arrangements may require separate
+              payment instructions, debit-order documentation or a formal
+              mandate completed in accordance with the relevant requirements.
             </p>
 
             <p className="mt-4 leading-7 text-gray-600">
-              Consent given during the initial application process does not,
-              by itself, constitute a formal debit order mandate unless the
-              applicable mandate requirements have separately been completed.
+              A checkbox, declaration or expression of interest provided
+              during an initial application does not, on its own, replace a
+              formal debit-order mandate where a separate mandate is required.
+            </p>
+
+            <p className="mt-4 leading-7 text-gray-600">
+              Repayment amounts, dates and authorised collection methods will
+              be governed by the applicable loan agreement and valid payment
+              authorisation. Applicants should check these details before
+              agreeing to a repayment arrangement.
+            </p>
+
+            <p className="mt-4 leading-7 text-gray-600">
+              Any payment collection, debit-order processing or administration
+              must be carried out in accordance with applicable law and the
+              relevant authorisation.
             </p>
           </section>
 
           {/* 9 */}
+          <section className="mt-12">
+            <h2 className="text-2xl font-semibold">
+              9. Fees, Interest and Costs
+            </h2>
+
+            <p className="mt-4 leading-7 text-gray-600">
+              Any interest, fees, charges or other costs applicable to a loan
+              must be disclosed in the relevant documentation, as required by
+              applicable law.
+            </p>
+
+            <p className="mt-4 leading-7 text-gray-600">
+              Do not rely solely on general website information when
+              determining the total cost of credit or the amount payable.
+              Review the formal agreement and applicable pre-agreement
+              disclosures before accepting an offer.
+            </p>
+
+            <p className="mt-4 leading-7 text-gray-600">
+              Applicable consumer credit protections and statutory limits
+              remain in force and are not excluded by these terms.
+            </p>
+          </section>
+
+          {/* 10 */}
           <section className="mt-12">
             <div className="flex items-start gap-4">
               <AlertTriangle className="mt-1 h-6 w-6 shrink-0 text-[#012a4a]" />
 
               <div>
                 <h2 className="text-2xl font-semibold">
-                  9. Prohibited Use
+                  10. Prohibited Use
                 </h2>
 
                 <p className="mt-4 leading-7 text-gray-600">
@@ -247,170 +342,214 @@ export default function TermsOfServicePage() {
                 </p>
 
                 <ul className="mt-4 list-disc space-y-2 pl-5 text-gray-600">
-                  <li>Submit fraudulent or misleading information.</li>
-                  <li>Impersonate another person.</li>
-                  <li>Submit documents that you are not authorised to provide.</li>
-                  <li>Attempt to gain unauthorised access to the website or its systems.</li>
-                  <li>Interfere with the security or operation of the website.</li>
-                  <li>Use the website for unlawful purposes.</li>
-                  <li>Attempt to abuse, exploit or circumvent application processes.</li>
+                  <li>Submit fraudulent, false or misleading information.</li>
+                  <li>Impersonate another person or misrepresent your identity.</li>
+                  <li>Submit documents you are not authorised to provide.</li>
+                  <li>Attempt to gain unauthorised access to the website, accounts or systems.</li>
+                  <li>Introduce malicious code or interfere with website security.</li>
+                  <li>Scrape, copy or misuse website information unlawfully.</li>
+                  <li>Interfere with the website or another user's access to it.</li>
+                  <li>Use the website for unlawful purposes or to circumvent legitimate verification procedures.</li>
                 </ul>
+
+                <p className="mt-4 leading-7 text-gray-600">
+                  Where misuse is suspected, we may take reasonable steps to
+                  protect the website, users and our business, including
+                  restricting access where appropriate and reporting suspected
+                  unlawful conduct where required or permitted by law.
+                </p>
               </div>
             </div>
-          </section>
-
-          {/* 10 */}
-          <section className="mt-12">
-            <h2 className="text-2xl font-semibold">
-              10. Website Availability
-            </h2>
-
-            <p className="mt-4 leading-7 text-gray-600">
-              We aim to keep the website available and functioning reliably.
-              However, we cannot guarantee that the website will always be
-              available, uninterrupted, error-free or free from security
-              vulnerabilities.
-            </p>
-
-            <p className="mt-4 leading-7 text-gray-600">
-              Maintenance, technical failures, third-party services, network
-              interruptions and circumstances outside our reasonable control
-              may temporarily affect availability.
-            </p>
           </section>
 
           {/* 11 */}
           <section className="mt-12">
             <h2 className="text-2xl font-semibold">
-              11. Third-Party Services
+              11. Website Availability and Security
             </h2>
 
             <p className="mt-4 leading-7 text-gray-600">
-              The website may rely on third-party technology and service
-              providers for hosting, document storage, communications,
-              analytics, payment-related functionality or other technical
-              services.
+              We aim to keep the website available and functioning reliably.
+              However, uninterrupted availability, error-free operation and
+              complete security cannot be guaranteed.
             </p>
 
             <p className="mt-4 leading-7 text-gray-600">
-              Your use of third-party services may also be subject to the terms
-              and policies of those providers.
+              Maintenance, technical failures, network interruptions,
+              third-party service disruptions or circumstances outside our
+              reasonable control may affect website availability.
+            </p>
+
+            <p className="mt-4 leading-7 text-gray-600">
+              You should use a secure device and protect your own accounts,
+              passwords and communications. If you believe that information
+              submitted through the website has been compromised, please
+              contact us promptly.
             </p>
           </section>
 
           {/* 12 */}
           <section className="mt-12">
             <h2 className="text-2xl font-semibold">
-              12. Intellectual Property
+              12. Third-Party Services and Links
             </h2>
 
             <p className="mt-4 leading-7 text-gray-600">
-              Unless otherwise stated, the content, branding, graphics,
-              designs, text, logos and other materials displayed on this
-              website belong to or are used by Optimus Solutions with
-              appropriate permission.
+              The website may rely on third-party providers for hosting,
+              document storage, communications, payment-related functionality
+              or other technical services.
             </p>
 
             <p className="mt-4 leading-7 text-gray-600">
-              You may not reproduce, modify, distribute or commercially exploit
-              website content without prior written permission, except where
-              permitted by applicable law.
+              Third-party websites and services may be governed by their own
+              terms and privacy policies. We encourage you to review those
+              policies before using an independent service or providing
+              information directly to that provider.
+            </p>
+
+            <p className="mt-4 leading-7 text-gray-600">
+              Nothing in this section removes any responsibility that cannot
+              lawfully be excluded under applicable law.
             </p>
           </section>
 
           {/* 13 */}
           <section className="mt-12">
             <h2 className="text-2xl font-semibold">
-              13. Disclaimer
+              13. Intellectual Property
             </h2>
 
             <p className="mt-4 leading-7 text-gray-600">
-              Information displayed on this website is provided for general
-              informational and application purposes. Website content does not
-              constitute a guarantee that any application will be approved or
-              that any particular financial outcome will be achieved.
+              Unless otherwise stated, the text, branding, graphics, designs,
+              logos and other materials displayed on this website belong to
+              Optimus Solutions or are used with appropriate permission.
             </p>
 
             <p className="mt-4 leading-7 text-gray-600">
-              Applicants should carefully review all formal documentation
-              provided to them before accepting any financial product or
-              entering into an agreement.
+              You may not reproduce, modify, distribute or commercially
+              exploit website materials without prior permission, except
+              where permitted by applicable law.
             </p>
           </section>
 
           {/* 14 */}
           <section className="mt-12">
             <h2 className="text-2xl font-semibold">
-              14. Limitation of Liability
+              14. Website Information and Disclaimers
             </h2>
 
             <p className="mt-4 leading-7 text-gray-600">
-              To the extent permitted by applicable law, Optimus Solutions
-              will not be responsible for losses arising from circumstances
-              beyond its reasonable control, including technical
-              interruptions, communication failures, third-party service
-              failures or unauthorised events.
+              Website content is provided for general information and to
+              support the application process. Although we aim to keep
+              information accurate and current, we do not guarantee that every
+              item of general website information is complete or suitable for
+              every person's circumstances.
             </p>
 
             <p className="mt-4 leading-7 text-gray-600">
-              Nothing in these terms is intended to exclude or limit any
-              liability that cannot lawfully be excluded or limited under
-              applicable law.
+              Website content is not a substitute for the formal terms,
+              disclosures or documents applicable to a particular transaction.
+              No application outcome or financial result is guaranteed by the
+              general information presented on this website.
+            </p>
+
+            <p className="mt-4 leading-7 text-gray-600">
+              Nothing in these terms is intended to exclude any duty,
+              representation or protection that cannot lawfully be excluded.
             </p>
           </section>
 
           {/* 15 */}
           <section className="mt-12">
             <h2 className="text-2xl font-semibold">
-              15. Changes to These Terms
+              15. Limitation of Liability
             </h2>
 
             <p className="mt-4 leading-7 text-gray-600">
-              We may update these Terms of Service from time to time. Updated
-              terms will be published on this page and will include the date on
-              which they were last updated.
+              To the extent permitted by applicable law, Optimus Solutions
+              will not be liable for loss arising directly from circumstances
+              outside its reasonable control, including certain network
+              interruptions, communication failures or third-party service
+              disruptions.
+            </p>
+
+            <p className="mt-4 leading-7 text-gray-600">
+              This provision does not exclude or limit liability where such
+              exclusion or limitation is prohibited by law, nor does it
+              remove any rights or remedies available to consumers under
+              applicable South African law.
             </p>
           </section>
 
           {/* 16 */}
           <section className="mt-12">
             <h2 className="text-2xl font-semibold">
-              16. Governing Law
+              16. Changes to These Terms
             </h2>
 
             <p className="mt-4 leading-7 text-gray-600">
-              These terms are intended to be governed by and interpreted in
-              accordance with the laws of the Republic of South Africa,
-              subject to any mandatory rights or protections provided by
-              applicable law.
+              We may update these Terms of Service from time to time to
+              reflect changes in our services, website, operations or
+              applicable legal requirements.
+            </p>
+
+            <p className="mt-4 leading-7 text-gray-600">
+              The latest version will be published on this page with its
+              revision date. Where the law requires additional notice or
+              consent, we will follow the applicable requirements.
+            </p>
+          </section>
+
+          {/* 17 */}
+          <section className="mt-12">
+            <h2 className="text-2xl font-semibold">
+              17. Governing Law and Consumer Rights
+            </h2>
+
+            <p className="mt-4 leading-7 text-gray-600">
+              These terms are intended to be governed by the laws of the
+              Republic of South Africa, subject to applicable legal
+              requirements and mandatory consumer protections.
+            </p>
+
+            <p className="mt-4 leading-7 text-gray-600">
+              Nothing in these terms is intended to remove any right you may
+              have under applicable South African consumer, credit, privacy
+              or other legislation. Where a provision conflicts with a
+              mandatory legal requirement, that requirement will apply to
+              the extent of the conflict.
             </p>
           </section>
 
           {/* Contact */}
           <section className="mt-12 rounded-xl bg-[#012a4a] p-6 text-white sm:p-8">
             <h2 className="text-2xl font-semibold">
-              17. Contact Optimus Solutions
+              18. Contact Optimus Solutions
             </h2>
 
             <p className="mt-3 leading-7 text-white/75">
-              If you have questions about these Terms of Service, please
-              contact us using the details below.
+              If you have questions about these Terms of Service or the
+              application process, please contact us using the details below.
             </p>
 
             <div className="mt-6 space-y-4 text-sm">
               <div className="flex items-center gap-3">
                 <Phone className="h-4 w-4 text-white/60" />
-                <span>+27 (76) 851-3565</span>
+                <a
+                  href="tel:+27729603512"
+                  className="transition-colors hover:text-white/70"
+                >
+                  +27 (72) 960-3512
+                </a>
               </div>
 
               <div className="flex items-center gap-3">
                 <Mail className="h-4 w-4 text-white/60" />
-
                 <a
-                  href="mailto:optimusolutions2@gmail.com"
+                  href="mailto:info@optimussolutions.co.za"
                   className="transition-colors hover:text-white/70"
                 >
-                  optimusolutions2@gmail.com
+                  info@optimussolutions.co.za
                 </a>
               </div>
             </div>
