@@ -1455,22 +1455,24 @@ Email: info@optimussolutions.co.za
 Trade Number: 2025/17469107
 `.trim()
 
+ 
     // ---------------------------------------------------------
     // 19. Resend configuration
     // ---------------------------------------------------------
 
     const receivingEmail =
-      process.env.OPTIMUS_RECEIVING_EMAIL
+      process.env.OPTIMUS_RECEIVING_EMAIL ||
+      "info@optimussolutions.co.za"
 
     const resendApiKey =
       process.env.RESEND_API_KEY
 
-    if (
-      !resendApiKey ||
-      !receivingEmail
-    ) {
+    const senderEmail =
+      "Optimus Solutions <info@optimussolutions.co.za>"
+
+    if (!resendApiKey) {
       console.error(
-        "Missing OPTIMUS_RECEIVING_EMAIL or RESEND_API_KEY"
+        "Missing RESEND_API_KEY"
       )
 
       return {
@@ -1481,7 +1483,7 @@ Trade Number: 2025/17469107
     }
 
     // ---------------------------------------------------------
-    // 20. Send email
+    // 20. Send internal application notification
     // ---------------------------------------------------------
 
     const response = await fetch(
@@ -1490,40 +1492,30 @@ Trade Number: 2025/17469107
         method: "POST",
 
         headers: {
-          "Content-Type":
-            "application/json",
-
-          Authorization:
-            `Bearer ${resendApiKey}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${resendApiKey}`,
         },
 
         body: JSON.stringify({
-          from:
-            "Optimus Solutions <onboarding@resend.dev>",
-
-          to: receivingEmail,
-
+          from: senderEmail,
+          to: [receivingEmail],
           subject: emailSubject,
-
           html: emailHtml,
-
           text: emailText,
-
           reply_to: email,
         }),
       }
     )
 
     // ---------------------------------------------------------
-    // 21. Handle Resend failure
+    // 21. Handle internal notification failure
     // ---------------------------------------------------------
 
     if (!response.ok) {
-      const errorText =
-        await response.text()
+      const errorText = await response.text()
 
       console.error(
-        "Resend API error:",
+        "Resend application notification error:",
         errorText
       )
 
@@ -1534,58 +1526,313 @@ Trade Number: 2025/17469107
       }
     }
 
-    // ---------------------------------------------------------
-    // 22. Log success
-    // ---------------------------------------------------------
-
     let resendResult: {
       id?: string
     } | null = null
 
     try {
-      resendResult =
-        await response.json()
+      resendResult = await response.json()
     } catch {
       resendResult = null
     }
 
     console.log(
-      "Application submitted successfully:",
+      "Application notification sent:",
       {
-        applicationId:
-          suppliedApplicationId,
-
-        resendId:
-          resendResult?.id,
+        applicationId: suppliedApplicationId,
+        resendId: resendResult?.id,
       }
     )
 
     // ---------------------------------------------------------
-    // 23. Return success
+    // 22. Send automatic applicant acknowledgement
+    // ---------------------------------------------------------
+
+    const acknowledgementHtml = `
+      <!DOCTYPE html>
+      <html lang="en">
+        <body style="
+          margin:0;
+          padding:30px 12px;
+          background:#eef2f5;
+          font-family:Arial,Helvetica,sans-serif;
+          color:#1e293b;
+        ">
+          <div style="
+            max-width:600px;
+            margin:0 auto;
+            background:#ffffff;
+            border-radius:14px;
+            overflow:hidden;
+          ">
+            <div style="
+              background:#012a4a;
+              padding:28px;
+              color:#ffffff;
+            ">
+              <h1 style="
+                margin:0;
+                font-size:24px;
+              ">
+                Optimus Solutions
+              </h1>
+
+              <p style="
+                margin:8px 0 0;
+                color:#cbd5e1;
+                font-size:13px;
+              ">
+                Loan Application Confirmation
+              </p>
+            </div>
+
+            <div style="padding:30px;">
+              <h2 style="
+                margin:0 0 18px;
+                color:#012a4a;
+                font-size:21px;
+              ">
+                Application Received
+              </h2>
+
+              <p style="
+                font-size:15px;
+                line-height:1.7;
+              ">
+                Dear ${escapeHtml(fullName)},
+              </p>
+
+              <p style="
+                font-size:15px;
+                line-height:1.7;
+                color:#475569;
+              ">
+                Thank you for submitting your loan
+                application to Optimus Solutions.
+                We have successfully received your
+                application and the supporting
+                information you provided.
+              </p>
+
+              <div style="
+                margin:24px 0;
+                padding:18px;
+                background:#f1f5f9;
+                border:1px solid #e2e8f0;
+                border-radius:10px;
+              ">
+                <p style="
+                  margin:0 0 7px;
+                  font-size:12px;
+                  color:#64748b;
+                ">
+                  YOUR APPLICATION REFERENCE
+                </p>
+
+                <p style="
+                  margin:0;
+                  font-size:19px;
+                  font-weight:700;
+                  color:#012a4a;
+                ">
+                  ${escapeHtml(suppliedApplicationId)}
+                </p>
+              </div>
+
+              <h3 style="
+                color:#012a4a;
+                font-size:16px;
+              ">
+                What happens next?
+              </h3>
+
+              <p style="
+                font-size:14px;
+                line-height:1.7;
+                color:#475569;
+              ">
+                Our team will review the information
+                and documents submitted. If additional
+                information or documentation is
+                required, we will contact you using
+                the contact details provided in your
+                application.
+              </p>
+
+              <div style="
+                margin:22px 0;
+                padding:16px;
+                background:#fffbeb;
+                border:1px solid #fde68a;
+                border-radius:9px;
+              ">
+                <p style="
+                  margin:0;
+                  font-size:13px;
+                  line-height:1.7;
+                  color:#78350f;
+                ">
+                  <strong>Important:</strong>
+                  This email confirms receipt of your
+                  application only. It does not mean
+                  that your application has been
+                  approved or that funding is
+                  guaranteed.
+                </p>
+              </div>
+
+              <p style="
+                font-size:14px;
+                line-height:1.7;
+                color:#475569;
+              ">
+                If you have any questions, please
+                contact our team:
+              </p>
+
+              <p style="
+                font-size:14px;
+                line-height:1.8;
+              ">
+                <strong>Email:</strong>
+                <a
+                  href="mailto:info@optimussolutions.co.za"
+                  style="color:#014f86;"
+                >
+                  info@optimussolutions.co.za
+                </a>
+                <br />
+
+                <strong>Phone:</strong>
+                +27 (72) 960-3512
+              </p>
+
+              <p style="
+                margin-top:28px;
+                font-size:14px;
+                line-height:1.7;
+                color:#475569;
+              ">
+                Kind regards,<br />
+                <strong>Optimus Solutions</strong>
+              </p>
+            </div>
+
+            <div style="
+              padding:18px;
+              background:#f8fafc;
+              border-top:1px solid #e2e8f0;
+              text-align:center;
+              font-size:11px;
+              line-height:1.6;
+              color:#94a3b8;
+            ">
+              Optimus Solutions<br />
+              info@optimussolutions.co.za
+            </div>
+          </div>
+        </body>
+      </html>
+    `
+
+    const acknowledgementText = `
+Dear ${fullName},
+
+Thank you for submitting your loan application to Optimus Solutions.
+
+We have successfully received your application and supporting information.
+
+Application Reference:
+${suppliedApplicationId}
+
+What happens next?
+
+Our team will review the information and documents submitted. If additional information or documentation is required, we will contact you using the contact details provided in your application.
+
+IMPORTANT:
+This email confirms receipt of your application only. It does not mean that your application has been approved or that funding is guaranteed.
+
+If you have questions, contact us:
+
+Email: info@optimussolutions.co.za
+Phone: +27 (72) 960-3512
+
+Kind regards,
+Optimus Solutions
+    `.trim()
+
+    try {
+      const acknowledgementResponse = await fetch(
+        "https://api.resend.com/emails",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${resendApiKey}`,
+          },
+
+          body: JSON.stringify({
+            from: senderEmail,
+            to: [email],
+            subject:
+              "We've received your loan application – Optimus Solutions",
+            html: acknowledgementHtml,
+            text: acknowledgementText,
+            reply_to: "info@optimussolutions.co.za",
+          }),
+        }
+      )
+
+      if (!acknowledgementResponse.ok) {
+        const acknowledgementError =
+          await acknowledgementResponse.text()
+
+        console.error(
+          "Applicant acknowledgement email failed:",
+          acknowledgementError
+        )
+      } else {
+        let acknowledgementResult: {
+          id?: string
+        } | null = null
+
+        try {
+          acknowledgementResult =
+            await acknowledgementResponse.json()
+        } catch {
+          acknowledgementResult = null
+        }
+
+        console.log(
+          "Applicant acknowledgement sent:",
+          {
+            applicationId: suppliedApplicationId,
+            acknowledgementId:
+              acknowledgementResult?.id,
+          }
+        )
+      }
+    } catch (acknowledgementError) {
+      // The application notification already succeeded.
+      // Never invalidate the application because this
+      // separate acknowledgement email could not be sent.
+
+      console.error(
+        "Applicant acknowledgement error:",
+        acknowledgementError
+      )
+    }
+
+    // ---------------------------------------------------------
+    // 23. Return successful application submission
     // ---------------------------------------------------------
 
     return {
       success: true,
-
       message:
         "Your application has been submitted successfully.",
-
-      applicationId:
-        suppliedApplicationId,
-    }
-
-  } catch (error) {
-
-    console.error(
-      "Application submission error:",
-      error
-    )
-
-    return {
-      success: false,
-
-      message:
-        "An error occurred while submitting your application. Please try again or contact us directly.",
+      applicationId: suppliedApplicationId,
     }
   }
 }
