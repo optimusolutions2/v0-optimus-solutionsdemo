@@ -1456,31 +1456,27 @@ Trade Number: 2025/17469107
 `.trim()
 
  
-    // ---------------------------------------------------------
-    // 19. Resend configuration
-    // ---------------------------------------------------------
+   
+// ---------------------------------------------------------
+// 19. Resend configuration
+// ---------------------------------------------------------
 
-    const receivingEmail =
-      process.env.OPTIMUS_RECEIVING_EMAIL ||
-      "info@optimussolutions.co.za"
+const receivingEmail = "info@optimussolutions.co.za"
 
-    const resendApiKey =
-      process.env.RESEND_API_KEY
+const resendApiKey = process.env.RESEND_API_KEY
 
-    const senderEmail =
-      "Optimus Solutions <info@optimussolutions.co.za>"
+const senderEmail =
+  "Optimus Solutions <info@optimussolutions.co.za>"
 
-    if (!resendApiKey) {
-      console.error(
-        "Missing RESEND_API_KEY"
-      )
+if (!resendApiKey) {
+  console.error("Missing RESEND_API_KEY")
 
-      return {
-        success: false,
-        message:
-          "The application could not be submitted because the email service is not configured.",
-      }
-    }
+  return {
+    success: false,
+    message:
+      "The application could not be submitted because the email service is not configured.",
+  }
+}
 
     // ---------------------------------------------------------
     // 20. Send internal application notification
