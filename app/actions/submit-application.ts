@@ -1824,6 +1824,7 @@ Optimus Solutions
       )
     }
 
+    
     // ---------------------------------------------------------
     // 23. Return successful application submission
     // ---------------------------------------------------------
@@ -1834,5 +1835,18 @@ Optimus Solutions
         "Your application has been submitted successfully.",
       applicationId: suppliedApplicationId,
     }
+
+  } catch (error) {
+    console.error(
+      "Application submission error:",
+      error
+    )
+
+    return {
+      success: false,
+      message:
+        "An error occurred while submitting your application. Please try again or contact us directly.",
+    }
   }
 }
+
