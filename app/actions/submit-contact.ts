@@ -1,3 +1,4 @@
+
 "use server"
 
 import { Resend } from "resend"
@@ -100,7 +101,7 @@ export async function submitContactForm(
 
   try {
     const { error } = await resend.emails.send({
-      from: "Optimus Solutions <noreply@resend.dev>",
+      from: "Optimus Solutions <info@optimussolutions.co.za>",
       to: [receivingEmail],
       replyTo: email,
       subject: `[${enquiryType}] Enquiry from ${name}`,
