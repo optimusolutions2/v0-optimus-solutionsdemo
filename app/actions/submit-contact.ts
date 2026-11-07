@@ -75,9 +75,7 @@ export async function submitContactForm(
     }
   }
 
-  const receivingEmail =
-    process.env.OPTIMUS_RECEIVING_EMAIL ||
-    "info@optimussolutions.co.za"
+  const receivingEmail = "info@optimussolutions.co.za"
 
   const resendApiKey = process.env.RESEND_API_KEY
 
