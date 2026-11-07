@@ -1540,7 +1540,7 @@ if (!resendApiKey) {
       }
     )
 
-    // ---------------------------------------------------------
+     // ---------------------------------------------------------
     // 22. Send automatic applicant acknowledgement
     // ---------------------------------------------------------
 
@@ -1555,21 +1555,19 @@ if (!resendApiKey) {
           color:#1e293b;
         ">
           <div style="
-            max-width:600px;
+            max-width:640px;
             margin:0 auto;
             background:#ffffff;
             border-radius:14px;
             overflow:hidden;
           ">
+
             <div style="
               background:#012a4a;
               padding:28px;
               color:#ffffff;
             ">
-              <h1 style="
-                margin:0;
-                font-size:24px;
-              ">
+              <h1 style="margin:0;font-size:24px;">
                 Optimus Solutions
               </h1>
 
@@ -1578,36 +1576,26 @@ if (!resendApiKey) {
                 color:#cbd5e1;
                 font-size:13px;
               ">
-                Loan Application Confirmation
+                Loan Application Acknowledgement
               </p>
             </div>
 
             <div style="padding:30px;">
-              <h2 style="
-                margin:0 0 18px;
-                color:#012a4a;
-                font-size:21px;
-              ">
-                Application Received
-              </h2>
 
-              <p style="
-                font-size:15px;
-                line-height:1.7;
-              ">
-                Dear ${escapeHtml(fullName)},
+              <p style="font-size:15px;line-height:1.7;">
+                Dear Valued Client,
               </p>
 
-              <p style="
-                font-size:15px;
-                line-height:1.7;
-                color:#475569;
-              ">
-                Thank you for submitting your loan
-                application to Optimus Solutions.
-                We have successfully received your
-                application and the supporting
-                information you provided.
+              <p style="font-size:15px;line-height:1.7;">
+                Thank you for choosing Optimus Solutions (Pty) Ltd.
+              </p>
+
+              <p style="font-size:15px;line-height:1.7;">
+                We appreciate the opportunity to assist you with your financial needs and thank you for submitting your loan application.
+              </p>
+
+              <p style="font-size:15px;line-height:1.7;">
+                This is an automatic acknowledgement confirming that we have successfully received your loan application.
               </p>
 
               <div style="
@@ -1621,13 +1609,14 @@ if (!resendApiKey) {
                   margin:0 0 7px;
                   font-size:12px;
                   color:#64748b;
+                  font-weight:600;
                 ">
                   YOUR APPLICATION REFERENCE
                 </p>
 
                 <p style="
                   margin:0;
-                  font-size:19px;
+                  font-size:20px;
                   font-weight:700;
                   color:#012a4a;
                 ">
@@ -1635,24 +1624,8 @@ if (!resendApiKey) {
                 </p>
               </div>
 
-              <h3 style="
-                color:#012a4a;
-                font-size:16px;
-              ">
-                What happens next?
-              </h3>
-
-              <p style="
-                font-size:14px;
-                line-height:1.7;
-                color:#475569;
-              ">
-                Our team will review the information
-                and documents submitted. If additional
-                information or documentation is
-                required, we will contact you using
-                the contact details provided in your
-                application.
+              <p style="font-size:15px;line-height:1.7;">
+                Your application will be reviewed by our team as part of our assessment process. We aim to provide you with feedback within 24–48 hours.
               </p>
 
               <div style="
@@ -1668,93 +1641,94 @@ if (!resendApiKey) {
                   line-height:1.7;
                   color:#78350f;
                 ">
-                  <strong>Important:</strong>
-                  This email confirms receipt of your
-                  application only. It does not mean
-                  that your application has been
-                  approved or that funding is
-                  guaranteed.
+                  <strong>Please note:</strong>
+                  This acknowledgement confirms receipt of your application only and does not constitute loan approval. Any approval will be subject to the outcome of our assessment and applicable requirements.
                 </p>
               </div>
 
-              <p style="
-                font-size:14px;
-                line-height:1.7;
-                color:#475569;
-              ">
-                If you have any questions, please
-                contact our team:
+              <p style="font-size:15px;line-height:1.7;">
+                Should we require any additional information or supporting documentation, one of our team members will contact you.
               </p>
 
-              <p style="
-                font-size:14px;
-                line-height:1.8;
-              ">
-                <strong>Email:</strong>
-                <a
-                  href="mailto:info@optimussolutions.co.za"
-                  style="color:#014f86;"
-                >
-                  info@optimussolutions.co.za
-                </a>
-                <br />
+              <p style="font-size:15px;line-height:1.7;">
+                At Optimus Solutions, we are committed to providing professional, reliable and efficient service throughout your application process.
+              </p>
 
-                <strong>Phone:</strong>
-                +27 (72) 960-3512
+              <p style="font-size:15px;line-height:1.7;">
+                Thank you for considering Optimus Solutions.
               </p>
 
               <p style="
                 margin-top:28px;
-                font-size:14px;
-                line-height:1.7;
-                color:#475569;
+                font-size:15px;
+                line-height:1.8;
               ">
-                Kind regards,<br />
-                <strong>Optimus Solutions</strong>
+                Kind regards,<br /><br />
+                <strong>Customer Support Team</strong><br />
+                Optimus Solutions (Pty) Ltd<br />
+                <span style="color:#64748b;">
+                  Professional Solutions. Exceptional Service
+                </span>
               </p>
+
             </div>
 
             <div style="
-              padding:18px;
+              padding:20px;
               background:#f8fafc;
               border-top:1px solid #e2e8f0;
               text-align:center;
-              font-size:11px;
-              line-height:1.6;
-              color:#94a3b8;
+              font-size:12px;
+              line-height:1.8;
+              color:#64748b;
             ">
-              Optimus Solutions<br />
+              <strong style="color:#012a4a;">
+                Optimus Solutions (Pty) Ltd
+              </strong>
+              <br />
               info@optimussolutions.co.za
+              <br />
+              +27 (72) 960-3512
+              <br />
+              Professional Solutions. Exceptional Service
             </div>
+
           </div>
         </body>
       </html>
     `
 
     const acknowledgementText = `
-Dear ${fullName},
+Dear Valued Client,
 
-Thank you for submitting your loan application to Optimus Solutions.
+Thank you for choosing Optimus Solutions (Pty) Ltd.
 
-We have successfully received your application and supporting information.
+We appreciate the opportunity to assist you with your financial needs and thank you for submitting your loan application.
 
-Application Reference:
+This is an automatic acknowledgement confirming that we have successfully received your loan application.
+
+Your Application Reference:
 ${suppliedApplicationId}
 
-What happens next?
+Your application will be reviewed by our team as part of our assessment process. We aim to provide you with feedback within 24–48 hours.
 
-Our team will review the information and documents submitted. If additional information or documentation is required, we will contact you using the contact details provided in your application.
+Please note that this acknowledgement confirms receipt of your application only and does not constitute loan approval. Any approval will be subject to the outcome of our assessment and applicable requirements.
 
-IMPORTANT:
-This email confirms receipt of your application only. It does not mean that your application has been approved or that funding is guaranteed.
+Should we require any additional information or supporting documentation, one of our team members will contact you.
 
-If you have questions, contact us:
+At Optimus Solutions, we are committed to providing professional, reliable and efficient service throughout your application process.
 
-Email: info@optimussolutions.co.za
-Phone: +27 (72) 960-3512
+Thank you for considering Optimus Solutions.
 
 Kind regards,
-Optimus Solutions
+
+Customer Support Team
+Optimus Solutions (Pty) Ltd
+Professional Solutions. Exceptional Service
+
+Contact:
+info@optimussolutions.co.za
++27 (72) 960-3512
     `.trim()
 
     try {
@@ -1772,7 +1746,7 @@ Optimus Solutions
             from: senderEmail,
             to: [email],
             subject:
-              "We've received your loan application – Optimus Solutions",
+              "Loan Application Received – Optimus Solutions",
             html: acknowledgementHtml,
             text: acknowledgementText,
             reply_to: "info@optimussolutions.co.za",
@@ -1810,16 +1784,11 @@ Optimus Solutions
         )
       }
     } catch (acknowledgementError) {
-      // The application notification already succeeded.
-      // Never invalidate the application because this
-      // separate acknowledgement email could not be sent.
-
       console.error(
         "Applicant acknowledgement error:",
         acknowledgementError
       )
     }
-
     
     // ---------------------------------------------------------
     // 23. Return successful application submission
